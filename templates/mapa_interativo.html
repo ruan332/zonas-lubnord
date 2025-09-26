@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Interativo - Editor de Zonas</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            z-index: 1000;
+        }
+        
+        .main-container {
+            height: calc(100vh - 56px);
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 350px;
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .map-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        #mapa {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .zona-badge {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 8px;
+            border: 1px solid #333;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+            max-width: 280px;
+        }
+        
+        .stats-card .card-body {
+            padding: 10px;
+            font-size: 12px;
+        }
+        
+        .stats-card .card-header {
+            padding: 8px 10px;
+            font-size: 13px;
+        }
+        
+        .stats-card h5 {
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+        
+        .stats-card small {
+            font-size: 10px;
+            color: white !important;
+        }
+        
+        .stats-card .text-muted {
+            color: white !important;
+        }
+        
+        .zona-item {
+            display: flex;
+            align-items: center;
+            padding: 6px;
+            margin-bottom: 3px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 11px;
+            transition: all 0.3s ease;
+        }
+        
+        .zona-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+        
+        .btn-edit-zone {
+            background: #007bff;
+            border: 1px solid #007bff;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            margin-left: auto;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-edit-zone:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+        
+        .connection-status {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            z-index: 1000;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .connected {
+            background: #28a745;
+            color: white;
+        }
+        
+        .disconnected {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .toast-container {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1050;
+        }
+        
+        .leaflet-popup-content {
+            margin: 8px 12px;
+            line-height: 1.4;
+        }
+        
+        .popup-municipio {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .popup-zona {
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .popup-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .popup-btn:hover {
+            background: #0056b3;
+        }
+        
+        /* Slider de Transparência */
+        #transparencia-slider {
+            height: 6px;
+            background: linear-gradient(to right, rgba(33, 150, 243, 0.2), #2196F3);
+            border-radius: 3px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        #transparencia-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #2196F3;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(33, 150, 243, 0.4);
+            transition: all 0.2s ease;
+        }
+        
+        #transparencia-slider::-webkit-slider-thumb:hover {
+            background: #1976D2;
+            transform: scale(1.1);
+            box-shadow: 0 3px 8px rgba(33, 150, 243, 0.6);
+        }
+        
+        #transparencia-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #2196F3;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(33, 150, 243, 0.4);
+            transition: all 0.2s ease;
+        }
+        
+        #transparencia-slider::-moz-range-thumb:hover {
+            background: #1976D2;
+            transform: scale(1.1);
+            box-shadow: 0 3px 8px rgba(33, 150, 243, 0.6);
+        }
+        
+        #transparencia-slider::-moz-range-track {
+            height: 6px;
+            background: linear-gradient(to right, rgba(33, 150, 243, 0.2), #2196F3);
+            border-radius: 3px;
+            border: none;
+        }
+        
+        .transparency-control {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(33, 150, 243, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .transparency-control:hover {
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+            border-color: rgba(33, 150, 243, 0.3);
+        }
+        
+        /* Tooltip personalizado */
+        .custom-tooltip {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: none !important;
+            border-radius: 6px !important;
+            color: #333 !important;
+            font-size: 12px !important;
+            padding: 8px 10px !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3) !important;
+        }
+        
+        .custom-tooltip::before {
+            border-top-color: rgba(255, 255, 255, 0.95) !important;
+        }
+        
+        /* Botões de modo */
+        .btn-modo {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-modo.active {
+            background-color: #007bff !important;
+            border-color: #007bff !important;
+            color: white !important;
+        }
+        
+        .btn-modo:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+        }
+        
+        /* Legenda Share */
+        .share-legend {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: 40vh;
+            }
+            
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .map-container {
+                height: 60vh;
+            }
+            
+            .share-legend {
+                font-size: 10px !important;
+                min-width: 120px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="fas fa-map-marked-alt"></i> Mapa Interativo - Editor de Zonas
+            </span>
+            <div class="d-flex align-items-center">
+                <span id="connection-status" class="connection-status disconnected">
+                    <i class="fas fa-wifi"></i> Desconectado
+                </span>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Container Principal -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Estatísticas -->
+            <div class="stats-card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-chart-pie"></i> Estatísticas Gerais
+                    </h5>
+                    <div id="estatisticas-gerais">
+                        <div class="text-center">
+                            <div class="spinner-border spinner-border-sm" role="status"></div>
+                            <small class="d-block mt-2">Carregando...</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controles de Visualização -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-palette"></i> Modo de Visualização
+                    </h6>
+                </div>
+                <div class="card-body p-3">
+                    <div class="btn-group w-100 mb-3" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm btn-modo active" id="btn-zonas" onclick="alternarModoVisualizacao('zonas')">
+                            <i class="fas fa-layer-group"></i> Zonas
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm btn-modo" id="btn-share" onclick="alternarModoVisualizacao('share')">
+                            <i class="fas fa-chart-area"></i> Share
+                        </button>
+                    </div>
+                    <div id="share-info" class="alert alert-info p-2" style="font-size: 11px; display: none;">
+                        <i class="fas fa-info-circle"></i> 
+                        <strong>Modo Share:</strong> Cores baseadas no percentual de Share de cada município.
+                        <div class="mt-1">
+                            <span class="badge" style="background: rgb(255,0,0); color: white;">Baixo</span>
+                            <span class="badge" style="background: rgb(255,255,0); color: black;">Médio</span>
+                            <span class="badge" style="background: rgb(0,255,0); color: black;">Alto</span>
+                        </div>
+                        <div class="mt-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="mostrar-labels-share" onchange="alternarLabelsShare()">
+                                <label class="form-check-label" for="mostrar-labels-share" style="font-size: 10px;">
+                                    Mostrar valores nos municípios
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controle de Transparência -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-adjust"></i> Transparência das Zonas
+                    </h6>
+                </div>
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-eye-slash text-muted me-2" title="Mais transparente - Permite ver melhor o mapa base"></i>
+                        <input type="range" class="form-range flex-grow-1 mx-2" id="transparencia-slider" 
+                               min="0.1" max="1.0" step="0.05" value="0.8"
+                               title="Arraste para ajustar a transparência das zonas em tempo real">
+                        <i class="fas fa-eye text-dark ms-2" title="Mais opaco - Destaca melhor as cores das zonas"></i>
+                    </div>
+                    <div class="text-center">
+                        <small class="text-muted">
+                            Opacidade: <span id="transparencia-valor" class="fw-bold text-primary">80%</span>
+                        </small>
+                        <div class="mt-1">
+                            <small class="text-muted" style="font-size: 10px;">
+                                <i class="fas fa-info-circle"></i> Ajuste em tempo real
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Zonas -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-layer-group"></i> Zonas Disponíveis
+                        </h6>
+                        <button class="btn btn-sm btn-outline-primary" onclick="adicionarZona()" title="Adicionar nova zona">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-2">
+                    <div id="lista-zonas">
+                        <div class="text-center">
+                            <div class="spinner-border spinner-border-sm" role="status"></div>
+                            <small class="d-block mt-2">Carregando zonas...</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Instruções -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle"></i> Como Usar
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <small>
+                        <ul class="mb-0 ps-3">
+                            <li>Clique em qualquer município no mapa</li>
+                            <li>Selecione a nova zona no modal</li>
+                            <li>As cores são atualizadas automaticamente</li>
+                            <li>Alterações são salvas em tempo real</li>
+                        </ul>
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mapa -->
+        <div class="map-container">
+            <div id="loading-overlay" class="loading-overlay">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <div class="mt-2">Carregando mapa...</div>
+                </div>
+            </div>
+            <div id="mapa"></div>
+        </div>
+    </div>
+    
+    <!-- Modal de Edição -->
+    <div class="modal fade" id="modalEdicao" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit"></i> Editar Zona do Município
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Município:</label>
+                        <input type="text" class="form-control" id="municipio-nome" readonly>
+                        <input type="hidden" id="municipio-codigo">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Zona Atual:</label>
+                        <div id="zona-atual" class="form-control-plaintext"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nova Zona:</label>
+                        <select class="form-select" id="nova-zona">
+                            <option value="">Selecione uma zona...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-salvar-edicao">
+                        <i class="fas fa-save"></i> Salvar Alteração
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Edição de Cor -->
+    <div class="modal fade" id="modalEditarCor" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-palette"></i> Alterar Cor da Zona
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Zona:</label>
+                        <div class="d-flex align-items-center">
+                            <span id="cor-atual-preview" class="zona-badge me-2"></span>
+                            <span id="zona-nome-cor"></span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nova Cor:</label>
+                        <div class="d-flex align-items-center">
+                            <input type="color" class="form-control form-control-color" id="nova-cor" value="#2196F3">
+                            <span class="ms-2" id="codigo-cor">#2196F3</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Pré-visualização:</label>
+                        <div class="d-flex align-items-center">
+                            <span id="nova-cor-preview" class="zona-badge me-2" style="background-color: #2196F3;"></span>
+                            <small class="text-muted">Como ficará no mapa</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-salvar-cor">
+                        <i class="fas fa-palette"></i> Alterar Cor
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição de Zona -->
+    <div class="modal fade" id="modalEdicaoZona" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit"></i> Editar Zona
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome da Zona:</label>
+                        <input type="text" class="form-control" id="zona-nome" placeholder="Digite o nome da zona">
+                        <input type="hidden" id="zona-nome-original">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Cor da Zona:</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="color" class="form-control form-control-color" id="zona-cor" style="width: 60px; height: 40px;">
+                            <input type="text" class="form-control" id="zona-cor-hex" placeholder="#000000" maxlength="7">
+                        </div>
+                        <small class="text-muted">Selecione uma cor ou digite o código hexadecimal</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Pré-visualização:</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="zona-badge" id="zona-preview" style="background-color: #000000;"></span>
+                            <small id="zona-preview-text">Nova Zona</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarEdicaoZona()">
+                        <i class="fas fa-save"></i> Salvar Alterações
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Criação de Zona -->
+    <div class="modal fade" id="modalCriacaoZona" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus"></i> Adicionar Nova Zona
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome da Zona:</label>
+                        <input type="text" class="form-control" id="nova-zona-nome" placeholder="Digite o nome da nova zona">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Cor da Zona:</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="color" class="form-control form-control-color" id="nova-zona-cor" value="#007bff" style="width: 60px; height: 40px;">
+                            <input type="text" class="form-control" id="nova-zona-cor-hex" value="#007bff" maxlength="7">
+                        </div>
+                        <small class="text-muted">Selecione uma cor ou digite o código hexadecimal</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Pré-visualização:</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="zona-badge" id="nova-zona-preview" style="background-color: #007bff;"></span>
+                            <small id="nova-zona-preview-text">Nova Zona</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="criarNovaZona()">
+                        <i class="fas fa-plus"></i> Criar Zona
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    
+    <script>
+        // Variáveis globais
+        let mapa;
+        let camadaMunicipios;
+        let zonasDisponiveis = {};
+        let municipioSelecionado = null;
+        let socket;
+        let opacidadeAtual = 0.8;
+        let modoVisualizacao = 'zonas'; // 'zonas' ou 'share'
+        let dadosShare = null;
+        let shareStats = null;
+        let labelsShare = null;
+        let mostrarLabels = false; // Opacidade padrão das zonas
+        
+        // Função para atualizar transparência do mapa
+        function updateMapOpacity(opacity) {
+            opacidadeAtual = opacity;
+            
+            // Atualizar todas as camadas de municípios
+            if (camadaMunicipios) {
+                camadaMunicipios.eachLayer(function(layer) {
+                    layer.setStyle({
+                        fillOpacity: opacity
+                    });
+                });
+            }
+            
+            // Atualizar display da porcentagem
+            const porcentagem = Math.round(opacity * 100);
+            document.getElementById('transparencia-valor').textContent = porcentagem + '%';
+        }
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarSocket();
+            inicializarMapa();
+            carregarDados();
+            configurarEventos();
+        });
+        
+        // Socket.IO
+        function inicializarSocket() {
+            socket = io();
+            
+            socket.on('connect', function() {
+                atualizarStatusConexao(true);
+                mostrarToast('Conectado ao servidor', 'success');
+            });
+            
+            socket.on('disconnect', function() {
+                atualizarStatusConexao(false);
+                mostrarToast('Desconectado do servidor', 'warning');
+            });
+            
+            socket.on('zona_alterada', function(data) {
+                if (data.sucesso) {
+                    atualizarMunicipioNoMapa(data.municipio);
+                    mostrarToast(`${data.municipio.cidade}: ${data.mensagem}`, 'success');
+                }
+            });
+            
+            socket.on('cor_zona_alterada', function(data) {
+                if (data.sucesso) {
+                    mostrarToast(`Cor da zona "${data.nome_zona}" alterada com sucesso!`, 'success');
+                    atualizarCorZona(data.nome_zona, data.nova_cor);
+                    // Recarregar estatísticas para atualizar cores
+                    carregarEstatisticas();
+                }
+            });
+            
+            socket.on('estatisticas_atualizadas', function(data) {
+                atualizarEstatisticas(data.estatisticas);
+            });
+            
+            socket.on('erro_alteracao', function(data) {
+                mostrarToast(data.mensagem, 'danger');
+            });
+            
+            socket.on('erro_cor', function(data) {
+                mostrarToast(data.mensagem, 'danger');
+            });
+            
+            // Handlers WebSocket para zonas
+            socket.on('zona_criada', function(data) {
+                if (data.sucesso) {
+                    mostrarToast(data.mensagem, 'success');
+                    // Atualizar zonas disponíveis
+                    zonasDisponiveis[data.zona.nome] = data.zona.cor;
+                    // Recarregar lista de zonas
+                    carregarZonas();
+                    // Recarregar dados do mapa
+                    carregarDadosMapa();
+                } else {
+                    mostrarToast(data.mensagem, 'danger');
+                }
+            });
+            
+            socket.on('zona_editada', function(data) {
+                if (data.sucesso) {
+                    mostrarToast(data.mensagem, 'success');
+                    // Atualizar zonas disponíveis
+                    if (data.zona.nome_original !== data.zona.nome_novo) {
+                        delete zonasDisponiveis[data.zona.nome_original];
+                    }
+                    zonasDisponiveis[data.zona.nome_novo] = data.zona.cor;
+                    // Recarregar lista de zonas
+                    carregarZonas();
+                    // Recarregar dados do mapa
+                    carregarDadosMapa();
+                    // Atualizar estatísticas
+                    carregarEstatisticas();
+                } else {
+                    mostrarToast(data.mensagem, 'danger');
+                }
+            });
+            
+            socket.on('erro_zona', function(data) {
+                mostrarToast(data.mensagem, 'danger');
+            });
+        }
+        
+        // Mapa Leaflet
+        function inicializarMapa() {
+            mapa = L.map('mapa').setView([-8.0476, -34.8770], 7);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(mapa);
+        }
+        
+        // Carregar dados
+        async function carregarDados() {
+            try {
+                await carregarZonas();
+                await carregarDadosMapa();
+                await carregarEstatisticas();
+                
+                document.getElementById('loading-overlay').style.display = 'none';
+                
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                mostrarToast('Erro ao carregar dados', 'danger');
+            }
+        }
+        
+        // Carregar zonas
+        async function carregarZonas() {
+            try {
+                const responseZonas = await fetch('/api/zonas');
+                const dataZonas = await responseZonas.json();
+                
+                if (dataZonas.sucesso) {
+                    zonasDisponiveis = dataZonas.cores;
+                    atualizarListaZonas(dataZonas.zonas);
+                    preencherSelectZonas(dataZonas.zonas);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar zonas:', error);
+            }
+        }
+        
+        // Carregar dados do mapa
+        async function carregarDadosMapa() {
+            try {
+                const responseMapa = await fetch('/api/dados_mapa');
+                const dataMapa = await responseMapa.json();
+                
+                if (dataMapa.sucesso) {
+                    adicionarMunicipiosAoMapa(dataMapa.dados);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados do mapa:', error);
+            }
+        }
+        
+        // Carregar estatísticas
+        async function carregarEstatisticas() {
+            try {
+                const responseStats = await fetch('/api/estatisticas');
+                const dataStats = await responseStats.json();
+                
+                if (dataStats.sucesso) {
+                    atualizarEstatisticas(dataStats.estatisticas);
+                }
+                
+                // Carregar estatísticas de Share
+                const responseShare = await fetch('/api/estatisticas_share');
+                const dataShare = await responseShare.json();
+                
+                if (dataShare.sucesso) {
+                    shareStats = dataShare;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+            }
+        }
+        
+        // Função para calcular cor baseada no valor de Share
+        function calcularCorPorShare(shareValue, minShare, maxShare) {
+            // Usar faixas fixas baseadas nos valores de Share
+            if (shareValue === 0 || shareValue === null || shareValue === undefined) {
+                return '#CCCCCC'; // Cinza para sem dados
+            }
+            
+            // Faixas definidas:
+            // Baixo: < 7% (vermelho claro)
+            // Médio: 7% - 11% (amarelo)
+            // Alto: > 11% (verde)
+            
+            if (shareValue < 7) {
+                return '#FF6B6B'; // Vermelho claro para baixo (<7%)
+            } else if (shareValue >= 7 && shareValue <= 11) {
+                return '#FFD93D'; // Amarelo para médio (7-11%)
+            } else {
+                return '#6BCF7F'; // Verde para alto (>11%)
+            }
+        }
+        
+        // Função para classificar valor de Share
+        function classificarShare(shareValue) {
+            if (shareValue === 0 || shareValue === null || shareValue === undefined) {
+                return 'Sem dados';
+            }
+            
+            if (shareValue < 7) {
+                return 'Baixo';
+            } else if (shareValue >= 7 && shareValue <= 11) {
+                return 'Médio';
+            } else {
+                return 'Alto';
+            }
+        }
+        
+        // Função para alternar modo de visualização
+        function alternarModoVisualizacao(modo) {
+            modoVisualizacao = modo;
+            
+            // Atualizar botões
+            document.querySelectorAll('.btn-modo').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`btn-${modo}`).classList.add('active');
+            
+            // Mostrar/ocultar informações do modo Share
+            const shareInfo = document.getElementById('share-info');
+            if (modo === 'share') {
+                shareInfo.style.display = 'block';
+                criarLegendaShare();
+                // Criar labels se a opção estiver marcada
+                if (mostrarLabels) {
+                    criarLabelsShare();
+                }
+            } else {
+                shareInfo.style.display = 'none';
+                removerLegendaShare();
+                removerLabelsShare();
+                // Desmarcar checkbox
+                document.getElementById('mostrar-labels-share').checked = false;
+                mostrarLabels = false;
+            }
+            
+            // Recarregar mapa com novo modo
+            if (camadaMunicipios && shareStats) {
+                atualizarCoresMapa();
+            }
+        }
+        
+        // Função para criar legenda de Share
+        function criarLegendaShare() {
+            if (!shareStats) return;
+            
+            // Remover legenda existente se houver
+            removerLegendaShare();
+            
+            const legend = L.control({position: 'bottomright'});
+            
+            legend.onAdd = function(map) {
+                const div = L.DomUtil.create('div', 'share-legend');
+                div.style.cssText = `
+                    background: white;
+                    padding: 10px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    font-size: 12px;
+                    line-height: 1.4;
+                    min-width: 150px;
+                `;
+                
+                const minShare = shareStats.share_geral.min;
+                const maxShare = shareStats.share_geral.max;
+                const mediaShare = shareStats.share_geral.media;
+                
+                div.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 8px; color: #333;">
+                        <i class="fas fa-chart-area"></i> Legenda Share
+                    </div>
+                    <div style="margin-bottom: 6px;">
+                        <div style="display: flex; align-items: center; margin-bottom: 3px;">
+                            <div style="width: 20px; height: 15px; background: #FF6B6B; margin-right: 8px; border: 1px solid #ccc;"></div>
+                            <span>Baixo (&lt;7%)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; margin-bottom: 3px;">
+                            <div style="width: 20px; height: 15px; background: #FFD93D; margin-right: 8px; border: 1px solid #ccc;"></div>
+                            <span>Médio (7-11%)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; margin-bottom: 3px;">
+                            <div style="width: 20px; height: 15px; background: #6BCF7F; margin-right: 8px; border: 1px solid #ccc;"></div>
+                            <span>Alto (&gt;11%)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; margin-bottom: 3px;">
+                            <div style="width: 20px; height: 15px; background: #CCCCCC; margin-right: 8px; border: 1px solid #ccc;"></div>
+                            <span>Sem dados</span>
+                        </div>
+                    </div>
+                    <div style="font-size: 10px; color: #666; border-top: 1px solid #eee; padding-top: 6px;">
+                        <div>Total: ${shareStats.total_municipios} municípios</div>
+                        <div>Média geral: ${mediaShare.toFixed(2)}%</div>
+                    </div>
+                `;
+                
+                return div;
+            };
+            
+            legend.addTo(mapa);
+            window.shareLegend = legend;
+        }
+        
+        // Função para remover legenda de Share
+        function removerLegendaShare() {
+            if (window.shareLegend) {
+                mapa.removeControl(window.shareLegend);
+                window.shareLegend = null;
+            }
+        }
+        
+        // Função para alternar labels de Share
+        function alternarLabelsShare() {
+            mostrarLabels = document.getElementById('mostrar-labels-share').checked;
+            
+            if (mostrarLabels && modoVisualizacao === 'share') {
+                criarLabelsShare();
+            } else {
+                removerLabelsShare();
+            }
+        }
+        
+        // Função para criar labels de Share
+        function criarLabelsShare() {
+            if (!dadosShare || !shareStats || modoVisualizacao !== 'share') return;
+            
+            // Remover labels existentes
+            removerLabelsShare();
+            
+            labelsShare = L.layerGroup();
+            
+            dadosShare.features.forEach(feature => {
+                const props = feature.properties;
+                const shareValue = props.share;
+                
+                // Calcular centro do polígono
+                const bounds = L.geoJSON(feature).getBounds();
+                const center = bounds.getCenter();
+                
+                // Criar label apenas para municípios com Share > 0
+                if (shareValue > 0) {
+                    const label = L.marker(center, {
+                        icon: L.divIcon({
+                            className: 'share-label',
+                            html: `<div style="
+                                background: rgba(0, 0, 0, 0.7);
+                                color: white;
+                                padding: 2px 6px;
+                                border-radius: 4px;
+                                font-size: 10px;
+                                font-weight: bold;
+                                text-align: center;
+                                border: 1px solid rgba(255, 255, 255, 0.3);
+                                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                                white-space: nowrap;
+                            ">${shareValue}%</div>`,
+                            iconSize: [30, 20],
+                            iconAnchor: [15, 10]
+                        })
+                    });
+                    
+                    labelsShare.addLayer(label);
+                }
+            });
+            
+            labelsShare.addTo(mapa);
+        }
+        
+        // Função para remover labels de Share
+        function removerLabelsShare() {
+            if (labelsShare) {
+                mapa.removeLayer(labelsShare);
+                labelsShare = null;
+            }
+        }
+        
+        // Função para atualizar cores do mapa baseado no modo
+        function atualizarCoresMapa() {
+            if (!camadaMunicipios || !shareStats) return;
+            
+            camadaMunicipios.eachLayer(function(layer) {
+                const props = layer.feature.properties;
+                let cor;
+                
+                if (modoVisualizacao === 'share') {
+                    // Usar gradiente baseado em Share
+                    cor = calcularCorPorShare(
+                        props.share,
+                        shareStats.share_geral.min,
+                        shareStats.share_geral.max
+                    );
+                } else {
+                    // Usar cor da zona
+                    cor = props.cor;
+                }
+                
+                layer.setStyle({
+                    fillColor: cor,
+                    fillOpacity: opacidadeAtual
+                });
+            });
+        }
+        
+        // Adicionar municípios ao mapa
+        function adicionarMunicipiosAoMapa(geojsonData) {
+            if (camadaMunicipios) {
+                mapa.removeLayer(camadaMunicipios);
+            }
+            
+            // Armazenar dados para uso posterior
+            dadosShare = geojsonData;
+            
+            camadaMunicipios = L.geoJSON(geojsonData, {
+                style: function(feature) {
+                    let fillColor = feature.properties.cor;
+                    
+                    // Se estiver no modo Share e temos estatísticas, usar gradiente
+                    if (modoVisualizacao === 'share' && shareStats) {
+                        fillColor = calcularCorPorShare(
+                            feature.properties.share,
+                            shareStats.share_geral.min,
+                            shareStats.share_geral.max
+                        );
+                    }
+                    
+                    return {
+                        fillColor: fillColor,
+                        weight: 1,
+                        opacity: 0.8,
+                        color: '#000000',
+                        fillOpacity: opacidadeAtual
+                    };
+                },
+                onEachFeature: function(feature, layer) {
+                    const props = feature.properties;
+                    
+                    // Tooltip com informações detalhadas
+                    const shareClassificacao = classificarShare(props.share);
+                    const tooltipContent = `
+                        <div style="font-size: 12px; line-height: 1.4;">
+                            <strong>${props.cidade}</strong><br>
+                            <span style="color: #666;">Zona: ${props.zona}</span><br>
+                            <span style="color: #007bff;">Share: ${props.share}% (${shareClassificacao})</span>
+                            ${props.populacao > 0 ? `<br><span style="color: #28a745;">População: ${props.populacao.toLocaleString()}</span>` : ''}
+                        </div>
+                    `;
+                    
+                    layer.bindTooltip(tooltipContent, {
+                        permanent: false,
+                        direction: 'top',
+                        className: 'custom-tooltip'
+                    });
+                    
+                    // Popup com informações completas
+                    const popupContent = `
+                        <div class="popup-municipio">${props.cidade}</div>
+                        <div class="popup-zona">Zona: ${props.zona}</div>
+                        <div style="margin: 8px 0; padding: 8px; background: #f8f9fa; border-radius: 4px; font-size: 12px;">
+                            <div><strong>Share:</strong> ${props.share}% <span style="color: #666; font-size: 11px;">(${classificarShare(props.share)})</span></div>
+                            ${props.sell_out > 0 ? `<div><strong>Sell Out:</strong> ${props.sell_out.toLocaleString()}</div>` : ''}
+                            ${props.potencial > 0 ? `<div><strong>Potencial:</strong> ${props.potencial.toLocaleString()}</div>` : ''}
+                            ${props.pdv > 0 ? `<div><strong>PDV:</strong> ${props.pdv.toLocaleString()}</div>` : ''}
+                            ${props.populacao > 0 ? `<div><strong>População:</strong> ${props.populacao.toLocaleString()}</div>` : ''}
+                        </div>
+                        <button class="popup-btn" onclick="editarMunicipio('${props.cd_mun}', '${props.cidade}', '${props.zona}', '${props.cor}')">
+                            <i class="fas fa-edit"></i> Editar Zona
+                        </button>
+                    `;
+                    
+                    layer.bindPopup(popupContent);
+                    
+                    // Eventos de hover
+                    layer.on({
+                        mouseover: function(e) {
+                            const layer = e.target;
+                            layer.setStyle({
+                                weight: 3,
+                                fillOpacity: 0.9
+                            });
+                        },
+                        mouseout: function(e) {
+                            camadaMunicipios.resetStyle(e.target);
+                        },
+                        click: function(e) {
+                            editarMunicipio(props.cd_mun, props.cidade, props.zona, props.cor);
+                        }
+                    });
+                }
+            }).addTo(mapa);
+        }
+        
+        // Editar município
+        function editarMunicipio(cdMun, cidade, zona, cor) {
+            municipioSelecionado = {
+                cd_mun: cdMun,
+                cidade: cidade,
+                zona: zona,
+                cor: cor
+            };
+            
+            document.getElementById('municipio-nome').value = cidade;
+            document.getElementById('municipio-codigo').value = cdMun;
+            document.getElementById('zona-atual').innerHTML = `
+                <span class="zona-badge" style="background-color: ${cor}"></span>
+                ${zona}
+            `;
+            document.getElementById('nova-zona').value = '';
+            
+            new bootstrap.Modal(document.getElementById('modalEdicao')).show();
+        }
+        
+        // Salvar edição
+        function salvarEdicao() {
+            const novaZona = document.getElementById('nova-zona').value;
+            
+            if (!novaZona) {
+                mostrarToast('Selecione uma nova zona', 'warning');
+                return;
+            }
+            
+            if (!municipioSelecionado) {
+                mostrarToast('Nenhum município selecionado', 'danger');
+                return;
+            }
+            
+            // Emitir alteração via WebSocket
+            socket.emit('alterar_zona', {
+                cd_mun: municipioSelecionado.cd_mun,
+                nova_zona: novaZona
+            });
+            
+            // Fechar modal
+            bootstrap.Modal.getInstance(document.getElementById('modalEdicao')).hide();
+        }
+        
+        // Atualizar município no mapa
+        function atualizarMunicipioNoMapa(municipio) {
+            if (camadaMunicipios) {
+                camadaMunicipios.eachLayer(function(layer) {
+                    if (layer.feature.properties.cd_mun === municipio.cd_mun) {
+                        // Atualizar propriedades
+                        layer.feature.properties.zona = municipio.zona_nova;
+                        layer.feature.properties.cor = municipio.cor_nova;
+                        
+                        // Atualizar estilo
+                        layer.setStyle({
+                            fillColor: municipio.cor_nova,
+                            fillOpacity: opacidadeAtual
+                        });
+                        
+                        // Atualizar popup
+                        const popupContent = `
+                            <div class="popup-municipio">${municipio.cidade}</div>
+                            <div class="popup-zona">Zona: ${municipio.zona_nova}</div>
+                            <button class="popup-btn" onclick="editarMunicipio('${municipio.cd_mun}', '${municipio.cidade}', '${municipio.zona_nova}', '${municipio.cor_nova}')">
+                                <i class="fas fa-edit"></i> Editar Zona
+                            </button>
+                        `;
+                        layer.setPopupContent(popupContent);
+                    }
+                });
+            }
+        }
+        
+        // Atualizar lista de zonas
+        function atualizarListaZonas(zonas) {
+            const container = document.getElementById('lista-zonas');
+            container.innerHTML = '';
+            
+            zonas.forEach(zona => {
+                const cor = zonasDisponiveis[zona] || '#CCCCCC';
+                const item = document.createElement('div');
+                item.className = 'zona-item';
+                item.innerHTML = `
+                    <span class="zona-badge" style="background-color: ${cor}"></span>
+                    <small class="flex-grow-1">${zona}</small>
+                    <button class="btn-edit-zone" onclick="editarZona('${zona}', '${cor}')" title="Editar zona">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        // Preencher select de zonas
+        function preencherSelectZonas(zonas) {
+            const select = document.getElementById('nova-zona');
+            select.innerHTML = '<option value="">Selecione uma zona...</option>';
+            
+            zonas.forEach(zona => {
+                const option = document.createElement('option');
+                option.value = zona;
+                option.textContent = zona;
+                select.appendChild(option);
+            });
+        }
+        
+        // Atualizar estatísticas
+        function atualizarEstatisticas(stats) {
+            const container = document.getElementById('estatisticas-gerais');
+            
+            let totalMunicipios = 0;
+            let totalPdv = 0;
+            let shareMedio = 0;
+            let zonasComShare = 0;
+            let html = '';
+            
+            Object.keys(stats).forEach(zona => {
+                const stat = stats[zona];
+                totalMunicipios += stat.total_municipios;
+                
+                if (stat.total_pdv) {
+                    totalPdv += stat.total_pdv;
+                }
+                
+                if (stat.share_medio) {
+                    shareMedio += stat.share_medio;
+                    zonasComShare++;
+                }
+                
+                html += `
+                    <div class="zona-item mb-2" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="zona-badge" style="background-color: ${stat.cor}"></span>
+                                    <small class="fw-bold">${zona.substring(0, 20)}${zona.length > 20 ? '...' : ''}</small>
+                                </div>
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <small class="d-block fw-bold">${stat.total_municipios}</small>
+                                        <small style="font-size: 10px; color: white;">Municípios</small>
+                                    </div>
+                                    ${stat.share_medio ? `
+                                    <div class="col-4">
+                                        <small class="d-block fw-bold">${stat.share_medio}%</small>
+                                        <small style="font-size: 10px; color: white;">Share</small>
+                                    </div>
+                                    ` : '<div class="col-4"></div>'}
+                                    ${stat.total_pdv ? `
+                                    <div class="col-4">
+                                        <small class="d-block fw-bold">${Math.round(stat.total_pdv).toLocaleString()}</small>
+                                        <small style="font-size: 10px; color: white;">PDV</small>
+                                    </div>
+                                    ` : '<div class="col-4"></div>'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            const shareGeralMedio = zonasComShare > 0 ? (shareMedio / zonasComShare).toFixed(2) : 0;
+            
+            container.innerHTML = `
+                <div class="text-center mb-3">
+                    <div class="row">
+                        <div class="col-4">
+                            <h5 class="mb-0">${totalMunicipios}</h5>
+                            <small style="color: white;">Municípios</small>
+                        </div>
+                        <div class="col-4">
+                            <h5 class="mb-0">${shareGeralMedio}%</h5>
+                            <small style="color: white;">Share Médio</small>
+                        </div>
+                        <div class="col-4">
+                            <h5 class="mb-0">${Math.round(totalPdv).toLocaleString()}</h5>
+                            <small style="color: white;">Total PDV</small>
+                        </div>
+                    </div>
+                </div>
+                <hr class="text-white" style="opacity: 0.3;">
+                <div style="max-height: 300px; overflow-y: auto;">
+                    ${html}
+                </div>
+            `;
+        }
+        
+        // Atualizar status de conexão
+        function atualizarStatusConexao(conectado) {
+            const status = document.getElementById('connection-status');
+            if (conectado) {
+                status.className = 'connection-status connected';
+                status.innerHTML = '<i class="fas fa-wifi"></i> Conectado';
+            } else {
+                status.className = 'connection-status disconnected';
+                status.innerHTML = '<i class="fas fa-wifi"></i> Desconectado';
+            }
+        }
+        
+        // Mostrar toast
+        function mostrarToast(mensagem, tipo = 'info') {
+            const toastContainer = document.querySelector('.toast-container');
+            const toastId = 'toast-' + Date.now();
+            
+            const toastHtml = `
+                <div id="${toastId}" class="toast align-items-center text-white bg-${tipo} border-0" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${mensagem}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            `;
+            
+            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+            
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+            toast.show();
+            
+            // Remover após ocultar
+            toastElement.addEventListener('hidden.bs.toast', function() {
+                toastElement.remove();
+            });
+        }
+        
+        // Editar cor da zona
+        function editarCorZona(nomeZona, corAtual) {
+            document.getElementById('zona-nome-cor').textContent = nomeZona;
+            document.getElementById('cor-atual-preview').style.backgroundColor = corAtual;
+            document.getElementById('nova-cor').value = corAtual;
+            document.getElementById('codigo-cor').textContent = corAtual;
+            document.getElementById('nova-cor-preview').style.backgroundColor = corAtual;
+            
+            // Armazenar zona sendo editada
+            window.zonaEditandoCor = nomeZona;
+            
+            // Mostrar modal
+            new bootstrap.Modal(document.getElementById('modalEditarCor')).show();
+        }
+        
+        // Salvar nova cor da zona
+        function salvarCorZona() {
+            const nomeZona = window.zonaEditandoCor;
+            const novaCor = document.getElementById('nova-cor').value;
+            
+            if (!nomeZona || !novaCor) {
+                mostrarToast('Dados inválidos para alteração de cor', 'danger');
+                return;
+            }
+            
+            // Emitir alteração via WebSocket
+            socket.emit('alterar_cor_zona', {
+                nome_zona: nomeZona,
+                nova_cor: novaCor
+            });
+            
+            // Fechar modal
+            bootstrap.Modal.getInstance(document.getElementById('modalEditarCor')).hide();
+        }
+        
+        // Atualizar cor da zona no frontend
+        function atualizarCorZona(nomeZona, novaCor) {
+            // Atualizar no objeto de zonas disponíveis
+            zonasDisponiveis[nomeZona] = novaCor;
+            
+            // Atualizar lista de zonas
+            atualizarListaZonas(Object.keys(zonasDisponiveis));
+            
+            // Atualizar no mapa
+            if (camadaMunicipios) {
+                camadaMunicipios.eachLayer(function(layer) {
+                    if (layer.feature.properties.zona === nomeZona) {
+                        layer.setStyle({
+                            fillColor: novaCor,
+                            fillOpacity: opacidadeAtual
+                        });
+                        // Atualizar propriedade
+                        layer.feature.properties.cor = novaCor;
+                    }
+                });
+            }
+        }
+        
+        // Adicionar nova zona
+        function adicionarZona() {
+            // Limpar campos
+            document.getElementById('nova-zona-nome').value = '';
+            document.getElementById('nova-zona-cor').value = '#007bff';
+            document.getElementById('nova-zona-cor-hex').value = '#007bff';
+            document.getElementById('nova-zona-preview').style.backgroundColor = '#007bff';
+            document.getElementById('nova-zona-preview-text').textContent = 'Nova Zona';
+            
+            // Configurar eventos de sincronização de cor
+            configurarEventosCor('nova-zona');
+            
+            // Mostrar modal
+            new bootstrap.Modal(document.getElementById('modalCriacaoZona')).show();
+        }
+        
+        // Editar zona existente
+        function editarZona(nomeZona, corZona) {
+            // Preencher campos
+            document.getElementById('zona-nome').value = nomeZona;
+            document.getElementById('zona-nome-original').value = nomeZona;
+            document.getElementById('zona-cor').value = corZona;
+            document.getElementById('zona-cor-hex').value = corZona;
+            document.getElementById('zona-preview').style.backgroundColor = corZona;
+            document.getElementById('zona-preview-text').textContent = nomeZona;
+            
+            // Configurar eventos de sincronização de cor
+            configurarEventosCor('zona');
+            
+            // Mostrar modal
+            new bootstrap.Modal(document.getElementById('modalEdicaoZona')).show();
+        }
+        
+        // Configurar eventos de sincronização entre color picker e input hex
+        function configurarEventosCor(prefixo) {
+            const colorPicker = document.getElementById(`${prefixo}-cor`);
+            const hexInput = document.getElementById(`${prefixo}-cor-hex`);
+            const preview = document.getElementById(`${prefixo}-preview`);
+            const previewText = document.getElementById(`${prefixo}-preview-text`);
+            
+            // Sincronizar color picker -> hex input
+            colorPicker.addEventListener('input', function() {
+                hexInput.value = this.value;
+                preview.style.backgroundColor = this.value;
+            });
+            
+            // Sincronizar hex input -> color picker
+            hexInput.addEventListener('input', function() {
+                if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) {
+                    colorPicker.value = this.value;
+                    preview.style.backgroundColor = this.value;
+                }
+            });
+            
+            // Atualizar texto da pré-visualização
+            if (prefixo === 'nova-zona') {
+                document.getElementById('nova-zona-nome').addEventListener('input', function() {
+                    previewText.textContent = this.value || 'Nova Zona';
+                });
+            } else {
+                document.getElementById('zona-nome').addEventListener('input', function() {
+                    previewText.textContent = this.value || 'Zona';
+                });
+            }
+        }
+        
+        // Criar nova zona
+        function criarNovaZona() {
+            const nome = document.getElementById('nova-zona-nome').value.trim();
+            const cor = document.getElementById('nova-zona-cor').value;
+            
+            // Validações
+            if (!nome) {
+                mostrarToast('Nome da zona é obrigatório', 'danger');
+                return;
+            }
+            
+            if (Object.keys(zonasDisponiveis).includes(nome)) {
+                mostrarToast('Já existe uma zona com este nome', 'danger');
+                return;
+            }
+            
+            if (!/^#[0-9A-Fa-f]{6}$/.test(cor)) {
+                mostrarToast('Cor inválida. Use formato hexadecimal (#000000)', 'danger');
+                return;
+            }
+            
+            // Emitir via WebSocket
+            socket.emit('criar_zona', {
+                nome: nome,
+                cor: cor
+            });
+            
+            // Fechar modal
+            bootstrap.Modal.getInstance(document.getElementById('modalCriacaoZona')).hide();
+        }
+        
+        // Salvar edição de zona
+        function salvarEdicaoZona() {
+            const nomeOriginal = document.getElementById('zona-nome-original').value;
+            const nomeNovo = document.getElementById('zona-nome').value.trim();
+            const cor = document.getElementById('zona-cor').value;
+            
+            // Validações
+            if (!nomeNovo) {
+                mostrarToast('Nome da zona é obrigatório', 'danger');
+                return;
+            }
+            
+            if (nomeNovo !== nomeOriginal && Object.keys(zonasDisponiveis).includes(nomeNovo)) {
+                mostrarToast('Já existe uma zona com este nome', 'danger');
+                return;
+            }
+            
+            if (!/^#[0-9A-Fa-f]{6}$/.test(cor)) {
+                mostrarToast('Cor inválida. Use formato hexadecimal (#000000)', 'danger');
+                return;
+            }
+            
+            // Emitir via WebSocket
+            socket.emit('editar_zona', {
+                nome_original: nomeOriginal,
+                nome_novo: nomeNovo,
+                cor: cor
+            });
+            
+            // Fechar modal
+            bootstrap.Modal.getInstance(document.getElementById('modalEdicaoZona')).hide();
+        }
+        
+        // Configurar eventos
+        function configurarEventos() {
+            document.getElementById('btn-salvar-edicao').addEventListener('click', salvarEdicao);
+            
+            // Event listener para o slider de transparência
+            const sliderTransparencia = document.getElementById('transparencia-slider');
+            if (sliderTransparencia) {
+                sliderTransparencia.addEventListener('input', function(e) {
+                    const opacity = parseFloat(e.target.value);
+                    updateMapOpacity(opacity);
+                });
+                
+                // Inicializar com valor padrão
+                updateMapOpacity(0.7);
+            }
+        }
+        
+
+        
+        // Configurar eventos de cor para modal de edição de cor
+        document.getElementById('nova-cor').addEventListener('input', function(e) {
+            const novaCor = e.target.value;
+            document.getElementById('codigo-cor').textContent = novaCor;
+            document.getElementById('nova-cor-preview').style.backgroundColor = novaCor;
+        });
+    </script>
+</body>
+</html>

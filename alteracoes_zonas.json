@@ -1,0 +1,150 @@
+{
+  "versao": "1.0",
+  "criado_em": "2025-09-25T16:05:55.278151",
+  "ultima_atualizacao": "2025-09-26T10:22:12.828370",
+  "alteracoes": [
+    {
+      "id": 1,
+      "timestamp": "2025-09-25T16:58:42.109852",
+      "cd_mun": "2604106",
+      "cidade": "Caruaru",
+      "zona_anterior": "Zona Caruaru",
+      "zona_nova": "Caruaru Sul",
+      "usuario": "WebInterface",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 2,
+      "timestamp": "2025-09-25T17:04:21.051269",
+      "cd_mun": "2604106",
+      "cidade": "Caruaru",
+      "zona_anterior": "Zona Caruaru",
+      "zona_nova": "Zona Caruaru Sul",
+      "usuario": "WebInterface",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 3,
+      "timestamp": "2025-09-26T09:45:42.928179",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Zona Petrolina",
+      "zona_nova": "Zona Araripina",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 4,
+      "timestamp": "2025-09-26T09:45:58.418877",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Zona Araripina",
+      "zona_nova": "Zona Araripina",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 5,
+      "timestamp": "2025-09-26T09:46:06.425131",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Zona Araripina",
+      "zona_nova": "Zona Araripina",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 6,
+      "timestamp": "2025-09-26T09:47:23.285805",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Zona Petrolina",
+      "zona_nova": "Zona Araripina",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 7,
+      "timestamp": "2025-09-26T09:48:00.802501",
+      "cd_mun": "2606804",
+      "cidade": "Igarassu",
+      "zona_anterior": "Região Metroplitana Norte",
+      "zona_nova": "Região Metroplitana Sul",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 8,
+      "timestamp": "2025-09-26T09:48:13.427613",
+      "cd_mun": "2606804",
+      "cidade": "Igarassu",
+      "zona_anterior": "Região Metroplitana Sul",
+      "zona_nova": "Região Metroplitana Norte",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 9,
+      "timestamp": "2025-09-26T09:57:14.905166",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Zona Petrolina",
+      "zona_nova": "Zona Araripina",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 10,
+      "timestamp": "2025-09-26T09:57:35.320455",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Zona Araripina",
+      "zona_nova": "Zona Petrolina",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 11,
+      "timestamp": "2025-09-26T09:57:54.970311",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Zona Petrolina",
+      "zona_nova": "Zona Araripina",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 12,
+      "timestamp": "2025-09-26T10:07:09.559746",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Zona Petrolina",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 13,
+      "timestamp": "2025-09-26T10:22:12.828370",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Zona Petrolina",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    }
+  ],
+  "estatisticas": {
+    "total_alteracoes": 13,
+    "municipios_alterados": 0,
+    "zonas_modificadas": [
+      "Caruaru Sul",
+      "Zona Caruaru Sul",
+      "Zona Araripina",
+      "Região Metroplitana Sul",
+      "Região Metroplitana Norte",
+      "Zona Petrolina",
+      "Teste"
+    ]
+  }
+}

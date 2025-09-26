@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Zonas - Pernambuco</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .zona-badge {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 8px;
+            border: 1px solid #333;
+        }
+        .municipio-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .municipio-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .action-buttons {
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+        }
+        .loading {
+            display: none;
+        }
+        .zona-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+            border: 2px solid #333;
+        }
+        .historico-item {
+            border-left: 4px solid #007bff;
+            padding-left: 15px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="fas fa-map-marked-alt"></i> Editor de Zonas - Pernambuco
+            </span>
+            <div class="d-flex">
+                <button class="btn btn-outline-light me-2" onclick="gerarMapa()">
+                    <i class="fas fa-map"></i> Gerar Mapa
+                </button>
+                <button class="btn btn-outline-light" onclick="salvarAlteracoes()">
+                    <i class="fas fa-save"></i> Salvar
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Painel de Controle -->
+            <div class="col-md-3">
+                <div class="action-buttons">
+                    <!-- Estatísticas -->
+                    <div class="card stats-card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-chart-pie"></i> Estatísticas</h5>
+                            <div id="estatisticas-container">
+                                <div class="loading">
+                                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                                    Carregando...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-filter"></i> Filtros</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Buscar Município:</label>
+                                <input type="text" class="form-control" id="filtro-municipio" 
+                                       placeholder="Digite o nome..." onkeyup="filtrarMunicipios()">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Filtrar por Zona:</label>
+                                <select class="form-select" id="filtro-zona" onchange="filtrarMunicipios()">
+                                    <option value="">Todas as zonas</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-outline-secondary btn-sm w-100" onclick="limparFiltros()">
+                                <i class="fas fa-times"></i> Limpar Filtros
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Ações -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-cogs"></i> Ações</h6>
+                        </div>
+                        <div class="card-body">
+                            <button class="btn btn-success btn-sm w-100 mb-2" onclick="salvarAlteracoes()">
+                                <i class="fas fa-save"></i> Salvar Alterações
+                            </button>
+                            <button class="btn btn-info btn-sm w-100 mb-2" onclick="gerarMapa()">
+                                <i class="fas fa-map"></i> Gerar Mapa Atualizado
+                            </button>
+                            <button class="btn btn-info btn-sm w-100 mb-2" onclick="abrirModalCenarios()">
+                                <i class="fas fa-chart-line"></i> Análise de Cenários
+                            </button>
+                            <button class="btn btn-danger btn-sm w-100" onclick="resetarDados()">
+                                <i class="fas fa-undo"></i> Resetar Dados
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Municípios -->
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-city"></i> Municípios de Pernambuco</h5>
+                        <span class="badge bg-primary" id="contador-municipios">0 municípios</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="municipios-container" class="row">
+                            <div class="col-12 text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Carregando...</span>
+                                </div>
+                                <p class="mt-2">Carregando municípios...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div class="modal fade" id="modalEdicao" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit"></i> Editar Zona do Município</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Município:</label>
+                        <input type="text" class="form-control" id="municipio-nome" readonly>
+                        <input type="hidden" id="municipio-codigo">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Zona Atual:</label>
+                        <div id="zona-atual" class="form-control-plaintext"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nova Zona:</label>
+                        <select class="form-select" id="nova-zona">
+                            <option value="">Selecione uma zona...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarEdicao()">
+                        <i class="fas fa-save"></i> Salvar Alteração
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Análise de Cenários -->
+    <div class="modal fade" id="modalCenarios" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-chart-line"></i> Análise de Cenários
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Painel de Controle -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-cogs"></i> Controles</h6>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Criar Cenário -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Criar Novo Cenário</label>
+                                        <input type="text" class="form-control mb-2" id="nomeCenario" placeholder="Nome do cenário">
+                                        <textarea class="form-control mb-2" id="descricaoCenario" rows="2" placeholder="Descrição (opcional)"></textarea>
+                                        <select class="form-select mb-2" id="tipoCenario">
+                                            <option value="atual">Baseado na configuração atual</option>
+                                            <option value="original">Baseado na configuração original</option>
+                                        </select>
+                                        <button class="btn btn-primary btn-sm w-100" onclick="criarCenario()">
+                                            <i class="fas fa-plus"></i> Criar Cenário
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Comparar Cenários -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Comparar Cenários</label>
+                                        <select class="form-select mb-2" id="cenario1Select">
+                                            <option value="">Selecione o primeiro cenário</option>
+                                        </select>
+                                        <select class="form-select mb-2" id="cenario2Select">
+                                            <option value="">Selecione o segundo cenário</option>
+                                        </select>
+                                        <button class="btn btn-warning btn-sm w-100" onclick="compararCenarios()">
+                                            <i class="fas fa-balance-scale"></i> Comparar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Lista de Cenários -->
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-list"></i> Cenários Disponíveis</h6>
+                                </div>
+                                <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                                    <div id="listaCenarios">
+                                        <!-- Cenários serão carregados aqui -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Área de Resultados -->
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-chart-bar"></i> Resultados da Análise</h6>
+                                </div>
+                                <div class="card-body" style="max-height: 600px; overflow-y: auto;">
+                                    <div id="resultadosAnalise">
+                                        <div class="text-center text-muted">
+                                            <i class="fas fa-info-circle fa-3x mb-3"></i>
+                                            <p>Selecione uma opção de análise para ver os resultados</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Histórico -->
+    <div class="modal fade" id="modalHistorico" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-history"></i> Histórico de Alterações</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="historico-container">
+                        <div class="text-center">
+                            <div class="spinner-border" role="status"></div>
+                            <p class="mt-2">Carregando histórico...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let municipios = [];
+        let zonas = [];
+        let municipiosFiltrados = [];
+
+        // Carregar dados iniciais
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarMunicipios();
+            carregarZonas();
+            carregarEstatisticas();
+        });
+
+        async function carregarMunicipios() {
+            try {
+                const response = await fetch('/api/municipios');
+                municipios = await response.json();
+                municipiosFiltrados = [...municipios];
+                renderizarMunicipios();
+                atualizarContador();
+            } catch (error) {
+                console.error('Erro ao carregar municípios:', error);
+                mostrarAlerta('Erro ao carregar municípios', 'danger');
+            }
+        }
+
+        async function carregarZonas() {
+            try {
+                const response = await fetch('/api/zonas');
+                zonas = await response.json();
+                preencherSelectZonas();
+            } catch (error) {
+                console.error('Erro ao carregar zonas:', error);
+            }
+        }
+
+        async function carregarEstatisticas() {
+            try {
+                const response = await fetch('/api/estatisticas');
+                const stats = await response.json();
+                renderizarEstatisticas(stats);
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+            }
+        }
+
+        function renderizarMunicipios() {
+            const container = document.getElementById('municipios-container');
+            
+            if (municipiosFiltrados.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12 text-center">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Nenhum município encontrado com os filtros aplicados.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = municipiosFiltrados.map(municipio => `
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card municipio-card h-100" onclick="editarMunicipio('${municipio.CD_Mun}')">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="zona-badge" style="background-color: ${municipio.Cor}"></span>
+                                <h6 class="card-title mb-0">${municipio.Cidade}</h6>
+                            </div>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt"></i> ${municipio.Zona}<br>
+                                    <i class="fas fa-code"></i> ${municipio.CD_Mun}
+                                </small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = html;
+        }
+
+        function renderizarEstatisticas(stats) {
+            const container = document.getElementById('estatisticas-container');
+            
+            const html = stats.slice(0, 8).map(stat => `
+                <div class="d-flex align-items-center mb-2">
+                    <span class="zona-color" style="background-color: ${stat.cor}"></span>
+                    <div class="flex-grow-1">
+                        <small class="d-block text-truncate" title="${stat.zona}">
+                            ${stat.zona.length > 15 ? stat.zona.substring(0, 15) + '...' : stat.zona}
+                        </small>
+                        <small class="text-light">${stat.municipios} (${stat.percentual}%)</small>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = html;
+        }
+
+        function preencherSelectZonas() {
+            const selects = ['filtro-zona', 'nova-zona'];
+            
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                const optionsHtml = zonas.map(zona => 
+                    `<option value="${zona}">${zona}</option>`
+                ).join('');
+                
+                if (selectId === 'filtro-zona') {
+                    select.innerHTML = '<option value="">Todas as zonas</option>' + optionsHtml;
+                } else {
+                    select.innerHTML = '<option value="">Selecione uma zona...</option>' + optionsHtml;
+                }
+            });
+        }
+
+        function filtrarMunicipios() {
+            const filtroMunicipio = document.getElementById('filtro-municipio').value.toLowerCase();
+            const filtroZona = document.getElementById('filtro-zona').value;
+
+            municipiosFiltrados = municipios.filter(municipio => {
+                const matchMunicipio = municipio.Cidade.toLowerCase().includes(filtroMunicipio);
+                const matchZona = !filtroZona || municipio.Zona === filtroZona;
+                return matchMunicipio && matchZona;
+            });
+
+            renderizarMunicipios();
+            atualizarContador();
+        }
+
+        function limparFiltros() {
+            document.getElementById('filtro-municipio').value = '';
+            document.getElementById('filtro-zona').value = '';
+            municipiosFiltrados = [...municipios];
+            renderizarMunicipios();
+            atualizarContador();
+        }
+
+        function atualizarContador() {
+            document.getElementById('contador-municipios').textContent = 
+                `${municipiosFiltrados.length} municípios`;
+        }
+
+        function editarMunicipio(cdMun) {
+            const municipio = municipios.find(m => m.CD_Mun == cdMun);
+            if (!municipio) return;
+
+            document.getElementById('municipio-nome').value = municipio.Cidade;
+            document.getElementById('municipio-codigo').value = municipio.CD_Mun;
+            document.getElementById('zona-atual').innerHTML = `
+                <span class="zona-badge" style="background-color: ${municipio.Cor}"></span>
+                ${municipio.Zona}
+            `;
+            document.getElementById('nova-zona').value = '';
+
+            new bootstrap.Modal(document.getElementById('modalEdicao')).show();
+        }
+
+        async function salvarEdicao() {
+            const cdMun = document.getElementById('municipio-codigo').value;
+            const novaZona = document.getElementById('nova-zona').value;
+
+            if (!novaZona) {
+                mostrarAlerta('Selecione uma nova zona', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/alterar_zona', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        cd_mun: cdMun,
+                        nova_zona: novaZona
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.sucesso) {
+                    mostrarAlerta(result.mensagem, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('modalEdicao')).hide();
+                    carregarMunicipios();
+                    carregarEstatisticas();
+                } else {
+                    mostrarAlerta(result.mensagem, 'danger');
+                }
+            } catch (error) {
+                console.error('Erro ao salvar edição:', error);
+                mostrarAlerta('Erro ao salvar alteração', 'danger');
+            }
+        }
+
+        async function salvarAlteracoes() {
+            try {
+                const response = await fetch('/api/salvar', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.sucesso) {
+                    mostrarAlerta(`Alterações salvas: ${result.arquivo_dados}`, 'success');
+                } else {
+                    mostrarAlerta(result.mensagem, 'danger');
+                }
+            } catch (error) {
+                console.error('Erro ao salvar:', error);
+                mostrarAlerta('Erro ao salvar alterações', 'danger');
+            }
+        }
+
+        async function gerarMapa() {
+            mostrarAlerta('Gerando mapa... Isso pode levar alguns segundos.', 'info');
+            
+            try {
+                const response = await fetch('/api/gerar_mapa', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.sucesso) {
+                    mostrarAlerta(`Mapa gerado: ${result.arquivo_mapa}`, 'success');
+                    // Abrir mapa em nova aba
+                    window.open(`/mapa/${result.arquivo_mapa}`, '_blank');
+                } else {
+                    mostrarAlerta(result.mensagem, 'danger');
+                }
+            } catch (error) {
+                console.error('Erro ao gerar mapa:', error);
+                mostrarAlerta('Erro ao gerar mapa', 'danger');
+            }
+        }
+
+        async function resetarDados() {
+            if (!confirm('Tem certeza que deseja resetar todos os dados para o estado original?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/resetar', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.sucesso) {
+                    mostrarAlerta(result.mensagem, 'success');
+                    carregarMunicipios();
+                    carregarEstatisticas();
+                } else {
+                    mostrarAlerta(result.mensagem, 'danger');
+                }
+            } catch (error) {
+                console.error('Erro ao resetar:', error);
+                mostrarAlerta('Erro ao resetar dados', 'danger');
+            }
+        }
+
+        // Funções para análise de cenários
+        function abrirModalCenarios() {
+            carregarCenarios();
+            new bootstrap.Modal(document.getElementById('modalCenarios')).show();
+        }
+
+        function carregarCenarios() {
+            fetch('/api/cenarios')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const listaCenarios = document.getElementById('listaCenarios');
+                        const cenario1Select = document.getElementById('cenario1Select');
+                        const cenario2Select = document.getElementById('cenario2Select');
+                        
+                        // Limpar listas
+                        listaCenarios.innerHTML = '';
+                        cenario1Select.innerHTML = '<option value="">Selecione o primeiro cenário</option>';
+                        cenario2Select.innerHTML = '<option value="">Selecione o segundo cenário</option>';
+                        
+                        if (data.cenarios.length === 0) {
+                            listaCenarios.innerHTML = '<p class="text-muted">Nenhum cenário criado ainda.</p>';
+                        } else {
+                            data.cenarios.forEach(cenario => {
+                                // Lista de cenários
+                                const cenarioDiv = document.createElement('div');
+                                cenarioDiv.className = 'border rounded p-2 mb-2';
+                                cenarioDiv.innerHTML = `
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">${cenario.nome}</h6>
+                                            <small class="text-muted">${cenario.descricao || 'Sem descrição'}</small>
+                                            <br>
+                                            <small><i class="fas fa-city"></i> ${cenario.total_municipios} municípios | 
+                                                   <i class="fas fa-layer-group"></i> ${cenario.zonas_ativas} zonas</small>
+                                        </div>
+                                        <div class="btn-group-vertical btn-group-sm">
+                                            <button class="btn btn-outline-primary btn-sm" onclick="gerarRelatorioDetalhado('${cenario.nome}')">
+                                                <i class="fas fa-chart-bar"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success btn-sm" onclick="exportarCenario('${cenario.nome}')">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm" onclick="removerCenario('${cenario.nome}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                                listaCenarios.appendChild(cenarioDiv);
+                                
+                                // Opções para comparação
+                                const option1 = new Option(cenario.nome, cenario.nome);
+                                const option2 = new Option(cenario.nome, cenario.nome);
+                                cenario1Select.add(option1);
+                                cenario2Select.add(option2);
+                            });
+                        }
+                    } else {
+                        mostrarAlerta('Erro ao carregar cenários: ' + data.error, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarAlerta('Erro ao carregar cenários', 'danger');
+                });
+        }
+
+        function criarCenario() {
+            const nome = document.getElementById('nomeCenario').value.trim();
+            const descricao = document.getElementById('descricaoCenario').value.trim();
+            const tipo = document.getElementById('tipoCenario').value;
+            
+            if (!nome) {
+                mostrarAlerta('Nome do cenário é obrigatório', 'warning');
+                return;
+            }
+            
+            fetch('/api/cenarios', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nome: nome,
+                    descricao: descricao,
+                    tipo: tipo
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    mostrarAlerta(data.message, 'success');
+                    document.getElementById('nomeCenario').value = '';
+                    document.getElementById('descricaoCenario').value = '';
+                    carregarCenarios();
+                } else {
+                    mostrarAlerta('Erro ao criar cenário: ' + data.error, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                mostrarAlerta('Erro ao criar cenário', 'danger');
+            });
+        }
+
+        function compararCenarios() {
+            const cenario1 = document.getElementById('cenario1Select').value;
+            const cenario2 = document.getElementById('cenario2Select').value;
+            
+            if (!cenario1 || !cenario2) {
+                mostrarAlerta('Selecione dois cenários para comparar', 'warning');
+                return;
+            }
+            
+            if (cenario1 === cenario2) {
+                mostrarAlerta('Selecione cenários diferentes para comparar', 'warning');
+                return;
+            }
+            
+            fetch('/api/cenarios/comparar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    cenario1: cenario1,
+                    cenario2: cenario2
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    exibirComparacaoCenarios(data.comparacao);
+                } else {
+                    mostrarAlerta('Erro ao comparar cenários: ' + data.error, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                mostrarAlerta('Erro ao comparar cenários', 'danger');
+            });
+        }
+
+        function exibirComparacaoCenarios(comparacao) {
+            const resultados = document.getElementById('resultadosAnalise');
+            
+            let html = `
+                <h5><i class="fas fa-balance-scale"></i> Comparação de Cenários</h5>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">${comparacao.cenarios.cenario1.nome}</h6>
+                            </div>
+                            <div class="card-body">
+                                <small>${comparacao.cenarios.cenario1.descricao}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-success">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0">${comparacao.cenarios.cenario2.nome}</h6>
+                            </div>
+                            <div class="card-body">
+                                <small>${comparacao.cenarios.cenario2.descricao}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h6><i class="fas fa-chart-bar"></i> Métricas Gerais</h6>
+                <div class="table-responsive mb-4">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Métrica</th>
+                                <th>${comparacao.cenarios.cenario1.nome}</th>
+                                <th>${comparacao.cenarios.cenario2.nome}</th>
+                                <th>Diferença</th>
+                                <th>% Mudança</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            const metricas = {
+                'total_municipios': 'Municípios',
+                'total_populacao': 'População',
+                'total_sell_out': 'Sell Out Anual',
+                'total_potencial': 'Potencial Anual',
+                'total_pdv': 'PDV'
+            };
+            
+            for (const [key, label] of Object.entries(metricas)) {
+                const metrica = comparacao.metricas_gerais[key];
+                const corMudanca = metrica.diferenca > 0 ? 'text-success' : metrica.diferenca < 0 ? 'text-danger' : 'text-muted';
+                
+                html += `
+                    <tr>
+                        <td>${label}</td>
+                        <td>${metrica.cenario1.toLocaleString('pt-BR')}</td>
+                        <td>${metrica.cenario2.toLocaleString('pt-BR')}</td>
+                        <td class="${corMudanca}">${metrica.diferenca > 0 ? '+' : ''}${metrica.diferenca.toLocaleString('pt-BR')}</td>
+                        <td class="${corMudanca}">${metrica.percentual_mudanca > 0 ? '+' : ''}${metrica.percentual_mudanca}%</td>
+                    </tr>
+                `;
+            }
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            // Municípios alterados
+            if (comparacao.municipios_alterados.length > 0) {
+                html += `
+                    <h6><i class="fas fa-exchange-alt"></i> Municípios Alterados (${comparacao.municipios_alterados.length})</h6>
+                    <div class="table-responsive mb-4" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Cidade</th>
+                                    <th>Zona Anterior</th>
+                                    <th>Nova Zona</th>
+                                    <th>População</th>
+                                    <th>Sell Out</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                comparacao.municipios_alterados.forEach(municipio => {
+                    html += `
+                        <tr>
+                            <td>${municipio.Cidade_c1}</td>
+                            <td><span class="badge bg-secondary">${municipio.Zona_c1}</span></td>
+                            <td><span class="badge bg-primary">${municipio.Zona_c2}</span></td>
+                            <td>${municipio['POPULAÇÃO_c1'].toLocaleString('pt-BR')}</td>
+                            <td>R$ ${municipio['SELL OUT ANUAL_c1'].toLocaleString('pt-BR')}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+            
+            resultados.innerHTML = html;
+        }
+
+        function gerarRelatorioDetalhado(nomeCenario) {
+            fetch(`/api/cenarios/${nomeCenario}/relatorio`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        exibirRelatorioDetalhado(data.relatorio);
+                    } else {
+                        mostrarAlerta('Erro ao gerar relatório: ' + data.error, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarAlerta('Erro ao gerar relatório', 'danger');
+                });
+        }
+
+        function exibirRelatorioDetalhado(relatorio) {
+            const resultados = document.getElementById('resultadosAnalise');
+            
+            let html = `
+                <h5><i class="fas fa-file-alt"></i> Relatório Detalhado: ${relatorio.nome_cenario}</h5>
+                <p class="text-muted">${relatorio.descricao}</p>
+                
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h4 class="text-primary">${relatorio.resumo_executivo.total_municipios}</h4>
+                                <small>Municípios</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h4 class="text-success">${relatorio.resumo_executivo.zonas_ativas}</h4>
+                                <small>Zonas Ativas</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h4 class="text-info">${relatorio.resumo_executivo.populacao_total.toLocaleString('pt-BR')}</h4>
+                                <small>População Total</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h4 class="text-warning">${relatorio.resumo_executivo.eficiencia_geral}%</h4>
+                                <small>Eficiência Geral</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h6><i class="fas fa-layer-group"></i> Análise por Zona</h6>
+                <div class="table-responsive mb-4">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Zona</th>
+                                <th>Municípios</th>
+                                <th>População</th>
+                                <th>Sell Out</th>
+                                <th>Potencial</th>
+                                <th>Eficiência</th>
+                                <th>Share Médio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            for (const [zona, dados] of Object.entries(relatorio.analise_detalhada)) {
+                html += `
+                    <tr>
+                        <td>
+                            <span class="badge" style="background-color: ${dados.cor}">${zona}</span>
+                        </td>
+                        <td>${dados.municipios}</td>
+                        <td>${dados.populacao.toLocaleString('pt-BR')}</td>
+                        <td>R$ ${dados.sell_out.toLocaleString('pt-BR')}</td>
+                        <td>R$ ${dados.potencial.toLocaleString('pt-BR')}</td>
+                        <td>${dados.eficiencia.toFixed(1)}%</td>
+                        <td>${dados.share_medio.toFixed(1)}%</td>
+                    </tr>
+                `;
+            }
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            // Recomendações
+            if (relatorio.recomendacoes.length > 0) {
+                html += `
+                    <h6><i class="fas fa-lightbulb"></i> Recomendações</h6>
+                    <div class="alert alert-info">
+                        <ul class="mb-0">
+                `;
+                
+                relatorio.recomendacoes.forEach(recomendacao => {
+                    html += `<li>${recomendacao}</li>`;
+                });
+                
+                html += `
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            resultados.innerHTML = html;
+        }
+
+        function exportarCenario(nomeCenario) {
+            window.open(`/api/cenarios/${nomeCenario}/exportar?formato=csv`, '_blank');
+        }
+
+        function removerCenario(nomeCenario) {
+            if (confirm(`Tem certeza que deseja remover o cenário "${nomeCenario}"?`)) {
+                fetch(`/api/cenarios/${nomeCenario}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        mostrarAlerta(data.message, 'success');
+                        carregarCenarios();
+                    } else {
+                        mostrarAlerta('Erro ao remover cenário: ' + data.error, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarAlerta('Erro ao remover cenário', 'danger');
+                });
+            }
+        }
+
+        async function mostrarHistorico() {
+            try {
+                const response = await fetch('/api/historico');
+                const historico = await response.json();
+                
+                const container = document.getElementById('historico-container');
+                
+                if (historico.length === 0) {
+                    container.innerHTML = '<p class="text-muted">Nenhuma alteração registrada.</p>';
+                } else {
+                    const html = historico.reverse().map(item => `
+                        <div class="historico-item">
+                            <strong>${item.cidade}</strong> (${item.cd_mun})<br>
+                            <small class="text-muted">
+                                ${item.zona_anterior} → ${item.zona_nova}<br>
+                                ${new Date(item.timestamp).toLocaleString('pt-BR')}
+                            </small>
+                        </div>
+                    `).join('');
+                    container.innerHTML = html;
+                }
+
+                new bootstrap.Modal(document.getElementById('modalHistorico')).show();
+            } catch (error) {
+                console.error('Erro ao carregar histórico:', error);
+                mostrarAlerta('Erro ao carregar histórico', 'danger');
+            }
+        }
+
+        function mostrarAlerta(mensagem, tipo) {
+            const alertaHtml = `
+                <div class="alert alert-${tipo} alert-dismissible fade show position-fixed" 
+                     style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;" role="alert">
+                    ${mensagem}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', alertaHtml);
+            
+            // Auto-remover após 5 segundos
+            setTimeout(() => {
+                const alertas = document.querySelectorAll('.alert');
+                if (alertas.length > 0) {
+                    alertas[alertas.length - 1].remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
