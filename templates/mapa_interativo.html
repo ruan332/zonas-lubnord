@@ -575,11 +575,119 @@
                             <small id="zona-preview-text">Nova Zona</small>
                         </div>
                     </div>
+                    
+                    <!-- Seção de Cidades Vinculadas -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label mb-0">
+                                <i class="fas fa-city"></i> Cidades Vinculadas
+                                <span class="badge bg-primary ms-1" id="contador-cidades">0</span>
+                            </label>
+                            <button type="button" class="btn btn-sm btn-outline-success" onclick="abrirModalAdicionarCidades()">
+                                <i class="fas fa-plus"></i> Adicionar Cidade
+                            </button>
+                        </div>
+                        <div class="border rounded p-2" style="max-height: 200px; overflow-y: auto;">
+                            <div id="lista-cidades-zona" class="d-flex flex-column gap-1">
+                                <div class="text-center text-muted py-2">
+                                    <i class="fas fa-city fa-2x mb-2"></i>
+                                    <p class="mb-0">Nenhuma cidade vinculada</p>
+                                    <small>Clique em "Adicionar Cidade" para começar</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-primary" onclick="salvarEdicaoZona()">
                         <i class="fas fa-save"></i> Salvar Alterações
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Adicionar Cidades à Zona -->
+    <div class="modal fade" id="modalAdicionarCidades" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus-circle"></i> Adicionar Cidades à Zona
+                        <span id="nome-zona-adicionar" class="text-primary"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Filtro de busca -->
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" class="form-control" id="filtro-cidades" placeholder="Buscar cidade...">
+                        </div>
+                    </div>
+                    
+                    <!-- Informações -->
+                    <div class="alert alert-info d-flex align-items-center mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <div>
+                            <strong>Instruções:</strong>
+                            <ul class="mb-0 mt-1">
+                                <li>Selecione as cidades que deseja adicionar à zona</li>
+                                <li>Cidades já vinculadas a outras zonas serão transferidas automaticamente</li>
+                                <li>Use o filtro para encontrar cidades específicas</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista de cidades disponíveis -->
+                    <div class="border rounded" style="max-height: 400px; overflow-y: auto;">
+                        <div class="p-2">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-list"></i> Cidades Disponíveis
+                                    <span id="total-cidades-disponiveis" class="badge bg-secondary ms-1">0</span>
+                                </small>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="selecionarTodasCidades()">
+                                        <i class="fas fa-check-double"></i> Selecionar Todas
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ms-1" onclick="deselecionarTodasCidades()">
+                                        <i class="fas fa-times"></i> Limpar Seleção
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="lista-cidades-disponiveis" class="d-flex flex-column gap-1">
+                                <div class="text-center text-muted py-3">
+                                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                                    <p class="mt-2 mb-0">Carregando cidades...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Resumo da seleção -->
+                    <div class="mt-3">
+                        <div class="alert alert-light border d-flex justify-content-between align-items-center mb-0">
+                            <span>
+                                <i class="fas fa-check-circle text-success"></i>
+                                <strong id="contador-selecionadas">0</strong> cidades selecionadas
+                            </span>
+                            <div id="preview-selecionadas" class="d-flex flex-wrap gap-1" style="max-width: 300px; overflow: hidden;">
+                                <!-- Preview das cidades selecionadas -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="adicionarCidadesSelecionadas()" disabled id="btn-adicionar-cidades">
+                        <i class="fas fa-plus"></i> Adicionar <span id="contador-btn">0</span> Cidades
                     </button>
                 </div>
             </div>
@@ -753,6 +861,38 @@
             
             socket.on('erro_zona', function(data) {
                 mostrarToast(data.mensagem, 'danger');
+            });
+            
+            // Listeners para gerenciamento de cidades
+            socket.on('cidade_removida_zona', function(data) {
+                if (data.sucesso) {
+                    mostrarToast(data.mensagem, 'success');
+                    // Recarregar lista de cidades se o modal estiver aberto
+                    if (window.zonaAtualEditando) {
+                        carregarCidadesVinculadas(window.zonaAtualEditando);
+                    }
+                    // Atualizar mapa
+                    carregarDadosMapa();
+                }
+            });
+            
+            socket.on('cidades_adicionadas_zona', function(data) {
+                if (data.sucesso) {
+                    mostrarToast(data.mensagem, 'success');
+                    // Recarregar lista de cidades se o modal estiver aberto
+                    if (window.zonaAtualEditando) {
+                        carregarCidadesVinculadas(window.zonaAtualEditando);
+                    }
+                    // Atualizar mapa
+                    carregarDadosMapa();
+                }
+            });
+            
+            socket.on('erro_cidade', function(data) {
+                mostrarToast(data.mensagem, 'danger');
+                if (data.erros && data.erros.length > 0) {
+                    console.error('Erros detalhados:', data.erros);
+                }
             });
         }
         
@@ -1464,11 +1604,324 @@
             // Configurar eventos de sincronização de cor
             configurarEventosCor('zona');
             
+            // Carregar cidades vinculadas à zona
+            carregarCidadesVinculadas(nomeZona);
+            
+            // Armazenar zona sendo editada
+            window.zonaAtualEditando = nomeZona;
+            
             // Mostrar modal
             new bootstrap.Modal(document.getElementById('modalEdicaoZona')).show();
         }
         
-        // Configurar eventos de sincronização entre color picker e input hex
+        // Carregar cidades vinculadas à zona
+        function carregarCidadesVinculadas(nomeZona) {
+            const container = document.getElementById('lista-cidades-zona');
+            const contador = document.getElementById('contador-cidades');
+            
+            // Mostrar loading
+            container.innerHTML = `
+                <div class="text-center text-muted py-2">
+                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                    <p class="mt-2 mb-0">Carregando cidades...</p>
+                </div>
+            `;
+            
+            // Buscar cidades da zona via API
+            fetch(`/api/cidades_zona/${encodeURIComponent(nomeZona)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        renderizarCidadesVinculadas(data.cidades);
+                        contador.textContent = data.cidades.length;
+                    } else {
+                        mostrarToast('Erro ao carregar cidades da zona', 'danger');
+                        container.innerHTML = `
+                            <div class="text-center text-muted py-2">
+                                <i class="fas fa-exclamation-triangle fa-2x mb-2 text-warning"></i>
+                                <p class="mb-0">Erro ao carregar cidades</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarToast('Erro de conexão ao carregar cidades', 'danger');
+                });
+        }
+        
+        // Renderizar lista de cidades vinculadas
+        function renderizarCidadesVinculadas(cidades) {
+            const container = document.getElementById('lista-cidades-zona');
+            
+            if (cidades.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-2">
+                        <i class="fas fa-city fa-2x mb-2"></i>
+                        <p class="mb-0">Nenhuma cidade vinculada</p>
+                        <small>Clique em "Adicionar Cidade" para começar</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = cidades.map(cidade => `
+                <div class="cidade-item d-flex justify-content-between align-items-center p-2 border rounded mb-1">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-city text-primary me-2"></i>
+                        <div>
+                            <strong>${cidade.nome}</strong>
+                            <br>
+                            <small class="text-muted">
+                                <i class="fas fa-map-marker-alt"></i> ${cidade.uf || 'PE'}
+                                ${cidade.populacao ? `• <i class="fas fa-users"></i> ${cidade.populacao.toLocaleString()} hab.` : ''}
+                            </small>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger" onclick="removerCidadeDaZona('${cidade.cd_mun}', '${cidade.nome}')" title="Remover cidade da zona">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        // Remover cidade da zona
+        function removerCidadeDaZona(cdMun, nomeCidade) {
+            if (!confirm(`Tem certeza que deseja remover "${nomeCidade}" desta zona?`)) {
+                return;
+            }
+            
+            // Emitir via WebSocket
+            socket.emit('remover_cidade_zona', {
+                cd_mun: cdMun,
+                cidade: nomeCidade,
+                zona_atual: window.zonaAtualEditando
+            });
+        }
+        
+        // Abrir modal para adicionar cidades
+        function abrirModalAdicionarCidades() {
+            const nomeZona = window.zonaAtualEditando;
+            if (!nomeZona) {
+                mostrarToast('Erro: Zona não identificada', 'danger');
+                return;
+            }
+            
+            // Atualizar título do modal
+            document.getElementById('nome-zona-adicionar').textContent = `"${nomeZona}"`;
+            
+            // Limpar filtro
+            document.getElementById('filtro-cidades').value = '';
+            
+            // Carregar cidades disponíveis
+            carregarCidadesDisponiveis();
+            
+            // Mostrar modal
+            new bootstrap.Modal(document.getElementById('modalAdicionarCidades')).show();
+        }
+        
+        // Carregar todas as cidades disponíveis
+        function carregarCidadesDisponiveis() {
+            const container = document.getElementById('lista-cidades-disponiveis');
+            const contador = document.getElementById('total-cidades-disponiveis');
+            
+            container.innerHTML = `
+                <div class="text-center text-muted py-3">
+                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                    <p class="mt-2 mb-0">Carregando cidades...</p>
+                </div>
+            `;
+            
+            fetch('/api/cidades_disponiveis')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('🔍 DEBUG: Dados recebidos da API:', data);
+                    if (data.sucesso) {
+                        console.log('🔍 DEBUG: Total de cidades:', data.cidades.length);
+                        console.log('🔍 DEBUG: Primeiras 3 cidades:', data.cidades.slice(0, 3));
+                        window.cidadesDisponiveis = data.cidades;
+                        renderizarCidadesDisponiveis(data.cidades);
+                        contador.textContent = data.cidades.length;
+                        configurarFiltroCidades();
+                    } else {
+                        console.error('❌ Erro na API:', data);
+                        mostrarToast('Erro ao carregar cidades disponíveis', 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarToast('Erro de conexão', 'danger');
+                });
+        }
+        
+        // Renderizar cidades disponíveis
+        function renderizarCidadesDisponiveis(cidades) {
+            const container = document.getElementById('lista-cidades-disponiveis');
+            
+            if (cidades.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-search fa-2x mb-2"></i>
+                        <p class="mb-0">Nenhuma cidade encontrada</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = cidades.map(cidade => {
+                // Debug: Log da cidade para verificar dados
+                console.log('Debug cidade:', cidade.nome, 'zona_atual:', cidade.zona_atual, 'cor_zona:', cidade.cor_zona);
+                const zonaAtual = cidade.zona_atual !== 'Sem Zona' ? cidade.zona_atual : null;
+                const isSelected = window.cidadesSelecionadas && window.cidadesSelecionadas.includes(cidade.cd_mun);
+                
+                return `
+                    <div class="cidade-disponivel-item">
+                        <div class="form-check d-flex align-items-center p-2 border rounded ${isSelected ? 'bg-light' : ''}">
+                            <input class="form-check-input me-2" type="checkbox" value="${cidade.cd_mun}" 
+                                   id="cidade-${cidade.cd_mun}" ${isSelected ? 'checked' : ''}
+                                   onchange="toggleCidadeSelecionada('${cidade.cd_mun}', '${cidade.nome}')">
+                            <label class="form-check-label flex-grow-1" for="cidade-${cidade.cd_mun}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>${cidade.nome}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt"></i> ${cidade.uf || 'PE'}
+                                            ${cidade.populacao ? `• <i class="fas fa-users"></i> ${cidade.populacao.toLocaleString()} hab.` : ''}
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        ${zonaAtual ? `
+                                            <span class="badge" style="background-color: ${cidade.cor_zona || '#6c757d'}; color: white;">
+                                                ${zonaAtual}
+                                            </span>
+                                            <br>
+                                            <small class="text-warning">
+                                                <i class="fas fa-exchange-alt"></i> Será transferida
+                                            </small>
+                                        ` : `
+                                            <span class="badge bg-secondary">Sem Zona</span>
+                                        `}
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+         
+         // Configurar filtro de cidades
+         function configurarFiltroCidades() {
+             const filtro = document.getElementById('filtro-cidades');
+             filtro.addEventListener('input', function() {
+                 const termo = this.value.toLowerCase();
+                 const cidadesFiltradas = window.cidadesDisponiveis.filter(cidade => 
+                     cidade.nome.toLowerCase().includes(termo)
+                 );
+                 renderizarCidadesDisponiveis(cidadesFiltradas);
+             });
+         }
+         
+         // Toggle seleção de cidade
+         function toggleCidadeSelecionada(cdMun, nomeCidade) {
+             if (!window.cidadesSelecionadas) {
+                 window.cidadesSelecionadas = [];
+             }
+             
+             const index = window.cidadesSelecionadas.indexOf(cdMun);
+             if (index > -1) {
+                 window.cidadesSelecionadas.splice(index, 1);
+             } else {
+                 window.cidadesSelecionadas.push(cdMun);
+             }
+             
+             atualizarResumoSelecao();
+         }
+         
+         // Selecionar todas as cidades
+         function selecionarTodasCidades() {
+             const checkboxes = document.querySelectorAll('#lista-cidades-disponiveis input[type="checkbox"]');
+             window.cidadesSelecionadas = [];
+             
+             checkboxes.forEach(checkbox => {
+                 checkbox.checked = true;
+                 window.cidadesSelecionadas.push(checkbox.value);
+             });
+             
+             atualizarResumoSelecao();
+         }
+         
+         // Desselecionar todas as cidades
+         function deselecionarTodasCidades() {
+             const checkboxes = document.querySelectorAll('#lista-cidades-disponiveis input[type="checkbox"]');
+             window.cidadesSelecionadas = [];
+             
+             checkboxes.forEach(checkbox => {
+                 checkbox.checked = false;
+             });
+             
+             atualizarResumoSelecao();
+         }
+         
+         // Atualizar resumo da seleção
+         function atualizarResumoSelecao() {
+             const contador = document.getElementById('contador-selecionadas');
+             const contadorBtn = document.getElementById('contador-btn');
+             const btnAdicionar = document.getElementById('btn-adicionar-cidades');
+             const preview = document.getElementById('preview-selecionadas');
+             
+             const total = window.cidadesSelecionadas ? window.cidadesSelecionadas.length : 0;
+             
+             contador.textContent = total;
+             contadorBtn.textContent = total;
+             btnAdicionar.disabled = total === 0;
+             
+             // Preview das cidades selecionadas
+             if (total === 0) {
+                 preview.innerHTML = '<small class="text-muted">Nenhuma cidade selecionada</small>';
+             } else {
+                 const cidadesNomes = window.cidadesSelecionadas.slice(0, 3).map(cdMun => {
+                     const cidade = window.cidadesDisponiveis.find(c => c.cd_mun === cdMun);
+                     return cidade ? cidade.nome : cdMun;
+                 });
+                 
+                 let previewText = cidadesNomes.join(', ');
+                 if (total > 3) {
+                     previewText += ` e mais ${total - 3}`;
+                 }
+                 
+                 preview.innerHTML = `<small class="text-primary">${previewText}</small>`;
+             }
+         }
+         
+         // Adicionar cidades selecionadas à zona
+         function adicionarCidadesSelecionadas() {
+             if (!window.cidadesSelecionadas || window.cidadesSelecionadas.length === 0) {
+                 mostrarToast('Nenhuma cidade selecionada', 'warning');
+                 return;
+             }
+             
+             const nomeZona = window.zonaAtualEditando;
+             if (!nomeZona) {
+                 mostrarToast('Erro: Zona não identificada', 'danger');
+                 return;
+             }
+             
+             // Emitir via WebSocket
+             socket.emit('adicionar_cidades_zona', {
+                 zona_destino: nomeZona,
+                 cidades_selecionadas: window.cidadesSelecionadas
+             });
+             
+             // Fechar modal
+             bootstrap.Modal.getInstance(document.getElementById('modalAdicionarCidades')).hide();
+             
+             // Limpar seleção
+             window.cidadesSelecionadas = [];
+         }
+         
+         // Configurar eventos de sincronização entre color picker e input hex
         function configurarEventosCor(prefixo) {
             const colorPicker = document.getElementById(`${prefixo}-cor`);
             const hexInput = document.getElementById(`${prefixo}-cor-hex`);
@@ -1589,6 +2042,90 @@
             const novaCor = e.target.value;
             document.getElementById('codigo-cor').textContent = novaCor;
             document.getElementById('nova-cor-preview').style.backgroundColor = novaCor;
+        });
+        
+        // Função para download da base atualizada
+        function downloadBaseAtualizada() {
+            const btnDownload = document.getElementById('btn-download-base');
+            const iconDownload = btnDownload.querySelector('i');
+            
+            // Mostrar loading
+            btnDownload.disabled = true;
+            iconDownload.className = 'fas fa-spinner fa-spin';
+            
+            // Fazer download
+            fetch('/api/download_base_atualizada')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao gerar download');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Criar link de download
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    
+                    // Extrair nome do arquivo do header ou usar padrão
+                    const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '').replace('T', '_');
+                    a.download = `pernambuco_dados_atualizada_${timestamp}.csv`;
+                    
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    mostrarToast('Base de dados baixada com sucesso!', 'success');
+                })
+                .catch(error => {
+                    console.error('Erro no download:', error);
+                    mostrarToast('Erro ao baixar base de dados', 'danger');
+                })
+                .finally(() => {
+                    // Restaurar botão
+                    btnDownload.disabled = false;
+                    iconDownload.className = 'fas fa-download';
+                });
+        }
+    </script>
+    
+    <!-- Botão discreto de download da base atualizada -->
+    <div id="btn-download-base" 
+         class="btn btn-primary btn-sm" 
+         style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,123,255,0.3); transition: all 0.3s ease; cursor: pointer;"
+         onclick="downloadBaseAtualizada()"
+         title="Baixar base de dados atualizada"
+         data-bs-toggle="tooltip"
+         data-bs-placement="left">
+        <i class="fas fa-download" style="font-size: 16px;"></i>
+    </div>
+    
+    <style>
+        #btn-download-base:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,123,255,0.4);
+        }
+        
+        #btn-download-base:active {
+            transform: scale(0.95);
+        }
+        
+        #btn-download-base:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+    </style>
+    
+    <script>
+        // Inicializar tooltip do botão de download
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
         });
     </script>
 </body>

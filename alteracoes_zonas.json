@@ -1,7 +1,7 @@
 {
   "versao": "1.0",
   "criado_em": "2025-09-25T16:05:55.278151",
-  "ultima_atualizacao": "2025-09-26T10:22:12.828370",
+  "ultima_atualizacao": "2025-09-26T11:58:49.059575",
   "alteracoes": [
     {
       "id": 1,
@@ -132,10 +132,400 @@
       "zona_nova": "Teste",
       "usuario": "MapaInterativo",
       "tipo": "alteracao_zona"
+    },
+    {
+      "id": 14,
+      "timestamp": "2025-09-26T11:08:11.755163",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Zona Petrolina",
+      "zona_nova": "Região Metroplitana Sul",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 15,
+      "timestamp": "2025-09-26T11:26:19.589396",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Zona Petrolina",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 16,
+      "timestamp": "2025-09-26T11:43:19.121708",
+      "cd_mun": "2600054",
+      "cidade": "Abreu e Lima",
+      "zona_anterior": "Região Metroplitana Litoral",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 17,
+      "timestamp": "2025-09-26T11:45:48.473897",
+      "cd_mun": "2604106",
+      "cidade": "Caruaru",
+      "zona_anterior": "Zona Caruaru Sul",
+      "zona_nova": "Zona Caruaru",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 18,
+      "timestamp": "2025-09-26T11:50:44.552818",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Zona Petrolina",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 19,
+      "timestamp": "2025-09-26T11:50:49.535201",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Teste",
+      "zona_nova": "Sem Zona",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 20,
+      "timestamp": "2025-09-26T11:50:55.272106",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Sem Zona",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 21,
+      "timestamp": "2025-09-26T11:51:34.795894",
+      "cd_mun": "2600054",
+      "cidade": "Abreu e Lima",
+      "zona_anterior": "Teste",
+      "zona_nova": "Sem Zona",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 22,
+      "timestamp": "2025-09-26T11:51:58.642083",
+      "cd_mun": "2600054",
+      "cidade": "Abreu e Lima",
+      "zona_anterior": "Sem Zona",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 23,
+      "timestamp": "2025-09-26T11:57:23.804751",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Teste",
+      "zona_nova": "Sem Zona",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 24,
+      "timestamp": "2025-09-26T11:57:25.180997",
+      "cd_mun": "2600054",
+      "cidade": "Abreu e Lima",
+      "zona_anterior": "Teste",
+      "zona_nova": "Sem Zona",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 25,
+      "timestamp": "2025-09-26T11:58:47.152146",
+      "cd_mun": "2601607",
+      "cidade": "Belém do São Francisco",
+      "zona_anterior": "Zona Araripina",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 26,
+      "timestamp": "2025-09-26T11:58:47.188200",
+      "cd_mun": "2603405",
+      "cidade": "Calumbi",
+      "zona_anterior": "Zona Caruaru Sul",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 27,
+      "timestamp": "2025-09-26T11:58:47.220197",
+      "cd_mun": "2603900",
+      "cidade": "Carnaíba",
+      "zona_anterior": "Zona Caruaru Sul",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 28,
+      "timestamp": "2025-09-26T11:58:47.252794",
+      "cd_mun": "2603926",
+      "cidade": "Carnaubeira da Penha",
+      "zona_anterior": "Zona Araripina",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 29,
+      "timestamp": "2025-09-26T11:58:47.278447",
+      "cd_mun": "2605608",
+      "cidade": "Flores",
+      "zona_anterior": "Zona Caruaru Sul",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 30,
+      "timestamp": "2025-09-26T11:58:47.305435",
+      "cd_mun": "2605707",
+      "cidade": "Floresta",
+      "zona_anterior": "Zona Araripina",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 31,
+      "timestamp": "2025-09-26T11:58:47.331298",
+      "cd_mun": "2608057",
+      "cidade": "Jatobá",
+      "zona_anterior": "Zona Araripina",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 32,
+      "timestamp": "2025-09-26T11:58:47.359186",
+      "cd_mun": "2609303",
+      "cidade": "Mirandiba",
+      "zona_anterior": "Zona Araripina",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 33,
+      "timestamp": "2025-09-26T11:58:47.386102",
+      "cd_mun": "2611533",
+      "cidade": "Quixaba",
+      "zona_anterior": "Zona Caruaru Sul",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 34,
+      "timestamp": "2025-09-26T11:58:47.413441",
+      "cd_mun": "2612471",
+      "cidade": "Santa Cruz da Baixa Verde",
+      "zona_anterior": "Zona Caruaru Sul",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 35,
+      "timestamp": "2025-09-26T11:58:47.439180",
+      "cd_mun": "2613503",
+      "cidade": "São José do Belmonte",
+      "zona_anterior": "Zona Araripina",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 36,
+      "timestamp": "2025-09-26T11:58:47.466375",
+      "cd_mun": "2613909",
+      "cidade": "Serra Talhada",
+      "zona_anterior": "Zona Caruaru Sul",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 37,
+      "timestamp": "2025-09-26T11:58:47.494087",
+      "cd_mun": "2614808",
+      "cidade": "Tacaratu",
+      "zona_anterior": "Zona Araripina",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 38,
+      "timestamp": "2025-09-26T11:58:47.520708",
+      "cd_mun": "2615706",
+      "cidade": "Triunfo",
+      "zona_anterior": "Zona Caruaru Sul",
+      "zona_nova": "Teste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 39,
+      "timestamp": "2025-09-26T11:58:48.730342",
+      "cd_mun": "2601607",
+      "cidade": "Belém do São Francisco",
+      "zona_anterior": "Teste",
+      "zona_nova": "Zona Serra Talhada",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 40,
+      "timestamp": "2025-09-26T11:58:48.759533",
+      "cd_mun": "2603405",
+      "cidade": "Calumbi",
+      "zona_anterior": "Teste",
+      "zona_nova": "Zona Serra Talhada",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 41,
+      "timestamp": "2025-09-26T11:58:48.793784",
+      "cd_mun": "2603900",
+      "cidade": "Carnaíba",
+      "zona_anterior": "Teste",
+      "zona_nova": "Zona Serra Talhada",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 42,
+      "timestamp": "2025-09-26T11:58:48.831563",
+      "cd_mun": "2603926",
+      "cidade": "Carnaubeira da Penha",
+      "zona_anterior": "Teste",
+      "zona_nova": "Zona Serra Talhada",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 43,
+      "timestamp": "2025-09-26T11:58:48.857900",
+      "cd_mun": "2605608",
+      "cidade": "Flores",
+      "zona_anterior": "Teste",
+      "zona_nova": "Zona Serra Talhada",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 44,
+      "timestamp": "2025-09-26T11:58:48.879356",
+      "cd_mun": "2605707",
+      "cidade": "Floresta",
+      "zona_anterior": "Teste",
+      "zona_nova": "Zona Serra Talhada",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 45,
+      "timestamp": "2025-09-26T11:58:48.900479",
+      "cd_mun": "2608057",
+      "cidade": "Jatobá",
+      "zona_anterior": "Teste",
+      "zona_nova": "Zona Serra Talhada",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 46,
+      "timestamp": "2025-09-26T11:58:48.924292",
+      "cd_mun": "2609303",
+      "cidade": "Mirandiba",
+      "zona_anterior": "Teste",
+      "zona_nova": "Zona Serra Talhada",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 47,
+      "timestamp": "2025-09-26T11:58:48.947245",
+      "cd_mun": "2611533",
+      "cidade": "Quixaba",
+      "zona_anterior": "Teste",
+      "zona_nova": "Zona Serra Talhada",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 48,
+      "timestamp": "2025-09-26T11:58:48.969268",
+      "cd_mun": "2612471",
+      "cidade": "Santa Cruz da Baixa Verde",
+      "zona_anterior": "Teste",
+      "zona_nova": "Zona Serra Talhada",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 49,
+      "timestamp": "2025-09-26T11:58:48.989219",
+      "cd_mun": "2613503",
+      "cidade": "São José do Belmonte",
+      "zona_anterior": "Teste",
+      "zona_nova": "Zona Serra Talhada",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 50,
+      "timestamp": "2025-09-26T11:58:49.016424",
+      "cd_mun": "2613909",
+      "cidade": "Serra Talhada",
+      "zona_anterior": "Teste",
+      "zona_nova": "Zona Serra Talhada",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 51,
+      "timestamp": "2025-09-26T11:58:49.039052",
+      "cd_mun": "2614808",
+      "cidade": "Tacaratu",
+      "zona_anterior": "Teste",
+      "zona_nova": "Zona Serra Talhada",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 52,
+      "timestamp": "2025-09-26T11:58:49.059575",
+      "cd_mun": "2615706",
+      "cidade": "Triunfo",
+      "zona_anterior": "Teste",
+      "zona_nova": "Zona Serra Talhada",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
     }
   ],
   "estatisticas": {
-    "total_alteracoes": 13,
+    "total_alteracoes": 52,
     "municipios_alterados": 0,
     "zonas_modificadas": [
       "Caruaru Sul",
@@ -144,7 +534,10 @@
       "Região Metroplitana Sul",
       "Região Metroplitana Norte",
       "Zona Petrolina",
-      "Teste"
+      "Teste",
+      "Zona Caruaru",
+      "Sem Zona",
+      "Zona Serra Talhada"
     ]
   }
 }

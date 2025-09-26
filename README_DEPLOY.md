@@ -1,5 +1,86 @@
 # 🚀 Guia Completo de Deploy na Railway
 
+## 📋 Nova Abordagem de Persistência
+
+### 🔄 Sistema Baseado na Base Original
+
+A partir desta versão, o sistema utiliza uma abordagem otimizada de persistência que:
+
+- **Carrega sempre da base original**: `pernambuco_dados_gerar_mapa.csv`
+- **Aplica alterações automaticamente**: Usa `alteracoes_zonas.json` para aplicar mudanças
+- **Preserva dados entre deploys**: Alterações não são perdidas durante atualizações
+- **Não versiona a base**: Arquivo base não é incluído no Git para preservar modificações
+
+### 📥 Botão de Download da Base Atualizada
+
+Uma nova funcionalidade foi adicionada à interface:
+
+- **Localização**: Botão circular azul no canto inferior direito
+- **Função**: Baixa a versão completa da base com todas as alterações aplicadas
+- **Formato**: CSV com timestamp no nome do arquivo
+- **Uso**: Facilita atualizações futuras e backup manual dos dados
+
+### ⚙️ Configuração do .gitignore
+
+Os seguintes arquivos foram adicionados ao `.gitignore`:
+```
+# Base de dados original (não versionar para preservar alterações)
+pernambuco_dados_gerar_mapa.csv
+dados_mapa_atual.csv
+```
+
+### 🛡️ Sistema Robusto de Fallback
+
+O sistema agora inclui:
+
+- **Detecção automática**: Verifica se arquivo base existe
+- **Restauração de backup**: Usa backup mais recente se disponível
+- **Dados mínimos**: Cria estrutura básica se necessário
+- **Validação de integridade**: Verifica e corrige dados carregados
+- **Tratamento de erros**: Fallbacks para garantir funcionamento
+
+---
+
+## 🚀 Como Usar o Novo Sistema
+
+### 1️⃣ Deploy Inicial
+
+1. **Faça o deploy normalmente** na Railway
+2. **O sistema criará automaticamente** uma base mínima se necessário
+3. **Faça upload da base completa** usando o botão de download para obter a estrutura atual
+4. **Substitua o arquivo** `pernambuco_dados_gerar_mapa.csv` no servidor
+
+### 2️⃣ Atualizações da Base
+
+1. **Baixe a versão atual** usando o botão de download (canto inferior direito)
+2. **Edite o arquivo CSV** conforme necessário
+3. **Substitua o arquivo base** no servidor
+4. **Reinicie a aplicação** para carregar as mudanças
+
+### 3️⃣ Preservação de Alterações
+
+- **Alterações de zona são preservadas** automaticamente via `alteracoes_zonas.json`
+- **Deploy não afeta alterações** feitas através da interface
+- **Backup automático** é criado periodicamente
+- **Histórico completo** de mudanças é mantido
+
+### 4️⃣ Recuperação de Dados
+
+**Se dados forem perdidos:**
+1. Sistema tentará restaurar do backup mais recente
+2. Se não houver backup, criará estrutura mínima
+3. Use o botão de download para obter dados atuais
+4. Restaure manualmente se necessário
+
+**Vantagens desta Abordagem:**
+- ✅ Alterações preservadas entre deploys
+- ✅ Base original não é versionada
+- ✅ Sistema robusto com fallbacks
+- ✅ Download fácil da versão atualizada
+- ✅ Recuperação automática de dados
+
+---
+
 ## 📋 Pré-requisitos
 
 - Conta no GitHub

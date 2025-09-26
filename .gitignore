@@ -157,6 +157,10 @@ mapa_pernambuco_interativo.html
 backups/*
 !backups/.gitkeep
 
+# Base de dados original (não versionar para preservar alterações)
+pernambuco_dados_gerar_mapa.csv
+dados_mapa_atual.csv
+
 # Arquivos do sistema
 .DS_Store
 Thumbs.db
