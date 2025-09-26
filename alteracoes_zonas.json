@@ -1,7 +1,7 @@
 {
   "versao": "1.0",
   "criado_em": "2025-09-25T16:05:55.278151",
-  "ultima_atualizacao": "2025-09-26T11:58:49.059575",
+  "ultima_atualizacao": "2025-09-26T18:03:20.498416",
   "alteracoes": [
     {
       "id": 1,
@@ -522,10 +522,30 @@
       "zona_nova": "Zona Serra Talhada",
       "usuario": "SistemaEdicaoZona",
       "tipo": "alteracao_zona"
+    },
+    {
+      "id": 53,
+      "timestamp": "2025-09-26T18:01:19.596036",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Sem Zona",
+      "zona_nova": "Zona Araripina",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 54,
+      "timestamp": "2025-09-26T18:03:20.498416",
+      "cd_mun": "2600054",
+      "cidade": "Abreu e Lima",
+      "zona_anterior": "Sem Zona",
+      "zona_nova": "Região Metroplitana Litoral",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
     }
   ],
   "estatisticas": {
-    "total_alteracoes": 52,
+    "total_alteracoes": 54,
     "municipios_alterados": 0,
     "zonas_modificadas": [
       "Caruaru Sul",
@@ -537,7 +557,8 @@
       "Teste",
       "Zona Caruaru",
       "Sem Zona",
-      "Zona Serra Talhada"
+      "Zona Serra Talhada",
+      "Região Metroplitana Litoral"
     ]
   }
 }

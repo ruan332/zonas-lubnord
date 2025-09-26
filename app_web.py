@@ -405,13 +405,13 @@ def obter_alteracoes_completas():
         alteracoes_data = gerenciador.persistencia.carregar_alteracoes()
         
         return jsonify({
-            'success': True,
+            'sucesso': True,
             'data': alteracoes_data
         })
     except Exception as e:
         return jsonify({
-            'success': False,
-            'error': str(e)
+            'sucesso': False,
+            'erro': str(e)
         }), 500
 
 # Rotas para análise de cenários

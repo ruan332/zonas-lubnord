@@ -500,6 +500,26 @@
       "zona_nova": "Zona Serra Talhada",
       "usuario": "SistemaEdicaoZona",
       "tipo": "alteracao_zona"
+    },
+    {
+      "id": 53,
+      "timestamp": "2025-09-26T18:01:19.596036",
+      "cd_mun": "2615201",
+      "cidade": "Terra Nova",
+      "zona_anterior": "Sem Zona",
+      "zona_nova": "Zona Araripina",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 54,
+      "timestamp": "2025-09-26T18:03:20.498416",
+      "cd_mun": "2600054",
+      "cidade": "Abreu e Lima",
+      "zona_anterior": "Sem Zona",
+      "zona_nova": "Região Metroplitana Litoral",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
     }
   ]
 }

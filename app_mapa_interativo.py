@@ -382,17 +382,11 @@ class GerenciadorMapaInterativo:
             # Agregação básica sempre funciona
             agg_dict = {'CD_Mun': 'count'}
             
-            if tem_sell_out and tem_potencial:
-                # Calcular share como SELL OUT ANUAL / POTENCIAL ANUAL
-                self.dados_municipios['Share_Calculado'] = (
-                    self.dados_municipios['SELL OUT ANUAL'] / 
-                    self.dados_municipios['POTENCIAL ANUAL'] * 100
-                ).fillna(0)
-                agg_dict['Share_Calculado'] = 'mean'
-            elif 'SHARE_CALCULADO' in self.dados_municipios.columns:
-                agg_dict['SHARE_CALCULADO'] = 'mean'
-            
-            # Adicionar PDV apenas se existir
+            # Adicionar colunas para soma se existirem
+            if tem_sell_out:
+                agg_dict['SELL OUT ANUAL'] = 'sum'
+            if tem_potencial:
+                agg_dict['POTENCIAL ANUAL'] = 'sum'
             if tem_pdv:
                 agg_dict['PDV'] = 'sum'
             
@@ -407,11 +401,20 @@ class GerenciadorMapaInterativo:
                     'percentual': round((row['total_municipios'] / len(self.dados_municipios)) * 100, 1)
                 }
                 
-                # Adicionar share se disponível
-                if 'Share_Calculado' in row:
-                    stat_item['share_medio'] = round(float(row['Share_Calculado']), 2)
-                elif 'SHARE_CALCULADO' in row:
-                    stat_item['share_medio'] = round(float(row['SHARE_CALCULADO']), 2)
+                # Calcular share correto para zona: (Soma SELL OUT / Soma POTENCIAL) * 100
+                if tem_sell_out and tem_potencial:
+                    sell_out_total = float(row['SELL OUT ANUAL'])
+                    potencial_total = float(row['POTENCIAL ANUAL'])
+                    if potencial_total > 0:
+                        share_zona = (sell_out_total / potencial_total) * 100
+                        stat_item['share_medio'] = round(share_zona, 2)
+                    else:
+                        stat_item['share_medio'] = 0.0
+                elif 'SHARE_CALCULADO' in self.dados_municipios.columns:
+                    # Fallback: usar média apenas se não tiver dados de SELL OUT e POTENCIAL
+                    zona_data = self.dados_municipios[self.dados_municipios['Zona'] == zona]
+                    share_medio = zona_data['SHARE_CALCULADO'].mean()
+                    stat_item['share_medio'] = round(float(share_medio), 2) if not pd.isna(share_medio) else 0.0
                 
                 # Adicionar PDV se disponível
                 if tem_pdv and 'PDV' in row:
@@ -543,9 +546,9 @@ def api_estatisticas_share():
             'mediana': float(gerenciador.dados_municipios['Share_Calculado'].median())
         }
         
-        # Estatísticas por zona
+        # Estatísticas por zona - corrigido para usar soma ao invés de média
         stats_por_zona = gerenciador.dados_municipios.groupby('Zona').agg({
-            'Share_Calculado': ['min', 'max', 'mean', 'count'],
+            'Share_Calculado': ['min', 'max', 'count'],  # Removido 'mean' 
             'SELL OUT ANUAL': 'sum' if tem_sell_out else 'count',
             'POTENCIAL ANUAL': 'sum' if tem_potencial else 'count'
         }).round(2)
@@ -555,15 +558,28 @@ def api_estatisticas_share():
             zonas_stats[zona] = {
                 'share_min': float(stats_por_zona.loc[zona, ('Share_Calculado', 'min')]),
                 'share_max': float(stats_por_zona.loc[zona, ('Share_Calculado', 'max')]),
-                'share_medio': float(stats_por_zona.loc[zona, ('Share_Calculado', 'mean')]),
                 'total_municipios': int(stats_por_zona.loc[zona, ('Share_Calculado', 'count')]),
                 'cor': gerenciador.zona_cores.get(zona, '#CCCCCC')
             }
             
-            if tem_sell_out:
-                zonas_stats[zona]['sell_out_total'] = float(stats_por_zona.loc[zona, ('SELL OUT ANUAL', 'sum')])
-            if tem_potencial:
-                zonas_stats[zona]['potencial_total'] = float(stats_por_zona.loc[zona, ('POTENCIAL ANUAL', 'sum')])
+            # Calcular share correto da zona: (Soma SELL OUT / Soma POTENCIAL) * 100
+            if tem_sell_out and tem_potencial:
+                sell_out_total = float(stats_por_zona.loc[zona, ('SELL OUT ANUAL', 'sum')])
+                potencial_total = float(stats_por_zona.loc[zona, ('POTENCIAL ANUAL', 'sum')])
+                
+                if potencial_total > 0:
+                    share_zona = (sell_out_total / potencial_total) * 100
+                    zonas_stats[zona]['share_medio'] = round(share_zona, 2)
+                else:
+                    zonas_stats[zona]['share_medio'] = 0.0
+                    
+                zonas_stats[zona]['sell_out_total'] = sell_out_total
+                zonas_stats[zona]['potencial_total'] = potencial_total
+            else:
+                # Fallback: usar média apenas se não tiver dados de SELL OUT e POTENCIAL
+                zona_data = gerenciador.dados_municipios[gerenciador.dados_municipios['Zona'] == zona]
+                share_medio = zona_data['Share_Calculado'].mean()
+                zonas_stats[zona]['share_medio'] = round(float(share_medio), 2) if not pd.isna(share_medio) else 0.0
         
         return jsonify({
             'sucesso': True,

@@ -179,13 +179,21 @@ class MapaInterativoPernambuco:
             # Calcular %share correto: SELL OUT ANUAL / POTENCIAL ANUAL
             self.dados_mapa['SHARE_CALCULADO'] = (self.dados_mapa['SELL OUT ANUAL'] / self.dados_mapa['POTENCIAL ANUAL']) * 100
             
+            # Corrigido: usar soma para cálculo correto de Share por zona
             stats_por_zona = self.dados_mapa.groupby('Zona').agg({
                 'CD_Mun': 'count',
                 'POTENCIAL MÊS': 'sum',
                 'PDV': 'sum',
-                'SHARE_CALCULADO': 'mean'
+                'SELL OUT ANUAL': 'sum',
+                'POTENCIAL ANUAL': 'sum'
             }).round(2)
-            stats_por_zona.columns = ['Municípios', 'Potencial Mensal', 'PDV', 'Share Médio']
+            
+            # Calcular Share correto da zona: (Soma SELL OUT / Soma POTENCIAL) * 100
+            stats_por_zona['Share Médio'] = (
+                stats_por_zona['SELL OUT ANUAL'] / stats_por_zona['POTENCIAL ANUAL'] * 100
+            ).fillna(0).round(2)
+            
+            stats_por_zona.columns = ['Municípios', 'Potencial Mensal', 'PDV', 'Sell Out Total', 'Potencial Total', 'Share Médio']
         else:
             stats_por_zona = self.dados_mapa.groupby('Zona').size().to_frame('Municípios')
         
