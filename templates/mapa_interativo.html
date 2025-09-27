@@ -1065,11 +1065,20 @@
             socket.on('zona_editada', function(data) {
                 if (data.sucesso) {
                     mostrarToast(data.mensagem, 'success');
+                    
                     // Atualizar zonas disponíveis
                     if (data.zona.nome_original !== data.zona.nome_novo) {
                         delete zonasDisponiveis[data.zona.nome_original];
                     }
                     zonasDisponiveis[data.zona.nome_novo] = data.zona.cor;
+                    
+                    // Atualizar municípios específicos no mapa se houve mudança de nome
+                    if (data.zona.nome_original !== data.zona.nome_novo && data.municipios_afetados && camadaMunicipios) {
+                        data.municipios_afetados.forEach(municipio => {
+                            atualizarZonaMunicipioNoMapa(municipio.cd_mun, municipio.zona_nova, municipio.cor_nova);
+                        });
+                    }
+                    
                     // Recarregar lista de zonas
                     carregarZonas();
                     // Recarregar dados do mapa
@@ -1089,12 +1098,24 @@
             socket.on('cidade_removida_zona', function(data) {
                 if (data.sucesso) {
                     mostrarToast(data.mensagem, 'success');
+                    
+                    // Atualizar cor específica do município no mapa sem recarregar tudo
+                    if (data.cd_mun && data.cor_nova && camadaMunicipios) {
+                        atualizarCorMunicipioEspecifico(data.cd_mun, data.cor_nova, data.zona_nova);
+                    }
+                    
                     // Recarregar lista de cidades se o modal estiver aberto
                     if (window.zonaAtualEditando) {
                         carregarCidadesVinculadas(window.zonaAtualEditando);
                     }
-                    // Atualizar mapa
-                    carregarDadosMapa();
+                    
+                    // Atualizar estatísticas
+                    carregarEstatisticas();
+                    
+                    // Como fallback, recarregar mapa completo após um pequeno delay
+                    setTimeout(() => {
+                        carregarDadosMapa();
+                    }, 500);
                 }
             });
             
@@ -1557,6 +1578,108 @@
             bootstrap.Modal.getInstance(document.getElementById('modalEdicao')).hide();
         }
         
+        // Função para atualizar zona específica de um município no mapa (para renomeação de zonas)
+        function atualizarZonaMunicipioNoMapa(cdMun, novaZona, novaCor) {
+            if (camadaMunicipios) {
+                camadaMunicipios.eachLayer(function(layer) {
+                    const cdMunLayer = layer.feature.properties.CD_Mun || layer.feature.properties.cd_mun;
+                    if (String(cdMunLayer) === String(cdMun)) {
+                        // Atualizar propriedades (compatibilidade com ambos os formatos)
+                        layer.feature.properties.Zona = novaZona;
+                        layer.feature.properties.zona = novaZona;
+                        layer.feature.properties.Cor = novaCor;
+                        layer.feature.properties.cor = novaCor;
+                        
+                        // Atualizar estilo imediatamente
+                        layer.setStyle({
+                            fillColor: novaCor,
+                            fillOpacity: opacidadeAtual
+                        });
+                        
+                        // Atualizar tooltip
+                        const props = layer.feature.properties;
+                        const shareValue = props.SHARE || props.share || 0;
+                        const shareFormatado = shareValue.toFixed(2);
+                        const shareClassificacao = classificarShare(shareValue);
+                        const tooltipContent = `
+                            <div style="font-size: 12px; line-height: 1.4;">
+                                <strong>${props.Cidade || props.cidade}</strong><br>
+                                <span style="color: #666;">Zona: ${novaZona}</span><br>
+                                <span style="color: #007bff;">Share: ${shareFormatado}% (${shareClassificacao})</span>
+                                ${(props.POPULACAO || props.populacao) > 0 ? `<br><span style="color: #28a745;">População: ${(props.POPULACAO || props.populacao).toLocaleString()}</span>` : ''}
+                            </div>
+                        `;
+                        layer.setTooltipContent(tooltipContent);
+                        
+                        // Atualizar popup
+                        const popupContent = `
+                            <div class="popup-municipio">${props.Cidade || props.cidade}</div>
+                            <div class="popup-zona">Zona: ${novaZona}</div>
+                            <div style="margin: 8px 0; padding: 8px; background: #f8f9fa; border-radius: 4px; font-size: 12px;">
+                                <div><strong>Share:</strong> ${shareFormatado}% <span style="color: #666; font-size: 11px;">(${shareClassificacao})</span></div>
+                                ${(props.SELL_OUT_ANUAL || props.sell_out) > 0 ? `<div><strong>Sell Out:</strong> ${(props.SELL_OUT_ANUAL || props.sell_out).toLocaleString()}</div>` : ''}
+                                ${(props.POTENCIAL_ANUAL || props.potencial) > 0 ? `<div><strong>Potencial:</strong> ${(props.POTENCIAL_ANUAL || props.potencial).toLocaleString()}</div>` : ''}
+                                ${(props.PDV || props.pdv) > 0 ? `<div><strong>PDV:</strong> ${(props.PDV || props.pdv).toLocaleString()}</div>` : ''}
+                                ${(props.POPULACAO || props.populacao) > 0 ? `<div><strong>População:</strong> ${(props.POPULACAO || props.populacao).toLocaleString()}</div>` : ''}
+                            </div>
+                            <button class="popup-btn" onclick="editarMunicipio('${cdMun}', '${props.Cidade || props.cidade}', '${novaZona}', '${novaCor}')">
+                                <i class="fas fa-edit"></i> Editar Zona
+                            </button>
+                        `;
+                        layer.setPopupContent(popupContent);
+                    }
+                });
+            }
+        }
+        
+        // Atualizar cor específica de município no mapa
+        function atualizarCorMunicipioEspecifico(cd_mun, cor_nova, zona_nova) {
+            if (camadaMunicipios) {
+                camadaMunicipios.eachLayer(function(layer) {
+                    const layerCdMun = layer.feature.properties.CD_Mun || layer.feature.properties.cd_mun;
+                    if (layerCdMun === cd_mun || layerCdMun === String(cd_mun)) {
+                        // Atualizar propriedades (compatibilidade com ambos os formatos)
+                        layer.feature.properties.Zona = zona_nova;
+                        layer.feature.properties.zona = zona_nova;
+                        layer.feature.properties.Cor = cor_nova;
+                        layer.feature.properties.cor = cor_nova;
+                        
+                        // Atualizar estilo imediatamente
+                        layer.setStyle({
+                            fillColor: cor_nova,
+                            fillOpacity: opacidadeAtual || 0.7
+                        });
+                        
+                        // Atualizar tooltip
+                        const cidade = layer.feature.properties.Cidade || layer.feature.properties.cidade;
+                        const share = layer.feature.properties.Share || layer.feature.properties.share || 'N/A';
+                        const populacao = layer.feature.properties.Populacao || layer.feature.properties.populacao || 'N/A';
+                        
+                        const tooltipContent = `
+                            <strong>${cidade}</strong><br>
+                            Zona: ${zona_nova}<br>
+                            Share: ${share}%<br>
+                            População: ${populacao}
+                        `;
+                        layer.bindTooltip(tooltipContent);
+                        
+                        // Atualizar popup
+                        const popupContent = `
+                            <div class="popup-municipio">${cidade}</div>
+                            <div class="popup-zona">Zona: ${zona_nova}</div>
+                            <button class="popup-btn" onclick="editarMunicipio('${cd_mun}', '${cidade}', '${zona_nova}', '${cor_nova}')">
+                                <i class="fas fa-edit"></i> Editar Zona
+                            </button>
+                        `;
+                        layer.setPopupContent(popupContent);
+                        
+                        console.log(`Cor do município ${cidade} atualizada para ${cor_nova} (zona: ${zona_nova})`);
+                        return false; // Parar a iteração após encontrar o município
+                    }
+                });
+            }
+        }
+
         // Atualizar município no mapa
         function atualizarMunicipioNoMapa(municipio) {
             if (camadaMunicipios) {

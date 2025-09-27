@@ -882,6 +882,18 @@ def handle_editar_zona(data):
         # Atualizar dados preparados
         gerenciador.preparar_dados_mapa()
         
+        # Obter municípios afetados pela mudança de zona
+        municipios_afetados = []
+        if nome_original != nome_novo:
+            municipios_na_zona = gerenciador.dados_municipios[gerenciador.dados_municipios['Zona'] == nome_novo]
+            for _, municipio in municipios_na_zona.iterrows():
+                municipios_afetados.append({
+                    'cd_mun': str(municipio['CD_Mun']),
+                    'cidade': municipio['Cidade'],
+                    'zona_nova': nome_novo,
+                    'cor_nova': cor
+                })
+        
         # Emitir sucesso para todos os clientes
         socketio.emit('zona_editada', {
             'sucesso': True,
@@ -890,7 +902,9 @@ def handle_editar_zona(data):
                 'nome_original': nome_original,
                 'nome_novo': nome_novo,
                 'cor': cor
-            }
+            },
+            'municipios_afetados': municipios_afetados,
+            'total_municipios_afetados': len(municipios_afetados)
         })
         
         print(f"✅ Zona editada: {nome_original} -> {nome_novo} - {cor}")
@@ -1003,12 +1017,15 @@ def handle_remover_cidade_zona(data):
         if sucesso:
             print(f"✅ Remoção bem-sucedida: {cidade_info['Cidade']} agora está em 'Sem Zona'")
             
-            # Emitir atualização para todos os clientes
+            # Emitir atualização para todos os clientes com dados completos da alteração
             socketio.emit('cidade_removida_zona', {
                 'sucesso': True,
                 'cd_mun': cd_mun,
                 'cidade': cidade_info['Cidade'],
                 'zona_anterior': zona_atual,
+                'zona_nova': 'Sem Zona',
+                'cor_nova': '#CCCCCC',
+                'municipio_atualizado': municipio_atualizado,
                 'mensagem': f"Cidade {cidade_info['Cidade']} removida da zona {zona_atual}"
             })
             

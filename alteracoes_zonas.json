@@ -1,7 +1,7 @@
 {
   "versao": "1.0",
   "criado_em": "2025-09-25T16:05:55.278151",
-  "ultima_atualizacao": "2025-09-27T09:07:12.982666",
+  "ultima_atualizacao": "2025-09-27T09:31:46.761748",
   "alteracoes": [
     {
       "id": 1,
@@ -752,10 +752,490 @@
       "zona_nova": "Zona Aracaju Metropolitano",
       "usuario": "MapaInterativo",
       "tipo": "alteracao_zona"
+    },
+    {
+      "id": 76,
+      "timestamp": "2025-09-27T09:25:18.183464",
+      "cd_mun": "2604106",
+      "cidade": "Caruaru",
+      "zona_anterior": "Zona Caruaru",
+      "zona_nova": "Sem Zona",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 77,
+      "timestamp": "2025-09-27T09:25:25.220161",
+      "cd_mun": "2604106",
+      "cidade": "Caruaru",
+      "zona_anterior": "Sem Zona",
+      "zona_nova": "Zona Caruaru",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 78,
+      "timestamp": "2025-09-27T09:28:31.412604",
+      "cd_mun": "2601706",
+      "cidade": "Belo Jardim",
+      "zona_anterior": "Zona Arcoverde",
+      "zona_nova": "Zona RENOMEAR",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 79,
+      "timestamp": "2025-09-27T09:28:31.455574",
+      "cd_mun": "2603108",
+      "cidade": "Cachoeirinha",
+      "zona_anterior": "Zona Arcoverde",
+      "zona_nova": "Zona RENOMEAR",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 80,
+      "timestamp": "2025-09-27T09:28:31.544854",
+      "cd_mun": "2603801",
+      "cidade": "Capoeiras",
+      "zona_anterior": "Zona Arcoverde",
+      "zona_nova": "Zona RENOMEAR",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 81,
+      "timestamp": "2025-09-27T09:28:31.585544",
+      "cd_mun": "2612406",
+      "cidade": "Sanharó",
+      "zona_anterior": "Zona Arcoverde",
+      "zona_nova": "Zona RENOMEAR",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 82,
+      "timestamp": "2025-09-27T09:28:31.624763",
+      "cd_mun": "2613008",
+      "cidade": "São Bento do Una",
+      "zona_anterior": "Zona Arcoverde",
+      "zona_nova": "Zona RENOMEAR",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 83,
+      "timestamp": "2025-09-27T09:28:31.663784",
+      "cd_mun": "2613107",
+      "cidade": "São Caitano",
+      "zona_anterior": "Zona Arcoverde",
+      "zona_nova": "Zona RENOMEAR",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 84,
+      "timestamp": "2025-09-27T09:28:31.705702",
+      "cd_mun": "2614709",
+      "cidade": "Tacaimbó",
+      "zona_anterior": "Zona Arcoverde",
+      "zona_nova": "Zona RENOMEAR",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 85,
+      "timestamp": "2025-09-27T09:28:41.789299",
+      "cd_mun": "2600500",
+      "cidade": "águas Belas",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 86,
+      "timestamp": "2025-09-27T09:28:41.824808",
+      "cd_mun": "2600609",
+      "cidade": "Alagoinha",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 87,
+      "timestamp": "2025-09-27T09:28:41.903766",
+      "cd_mun": "2601201",
+      "cidade": "Arcoverde",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 88,
+      "timestamp": "2025-09-27T09:28:41.982716",
+      "cd_mun": "2602803",
+      "cidade": "Buíque",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 89,
+      "timestamp": "2025-09-27T09:28:42.057582",
+      "cd_mun": "2605103",
+      "cidade": "Custódia",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 90,
+      "timestamp": "2025-09-27T09:28:42.150691",
+      "cd_mun": "2606507",
+      "cidade": "Iati",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 91,
+      "timestamp": "2025-09-27T09:28:42.193440",
+      "cd_mun": "2606606",
+      "cidade": "Ibimirim",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 92,
+      "timestamp": "2025-09-27T09:28:42.242984",
+      "cd_mun": "2607000",
+      "cidade": "Inajá",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 93,
+      "timestamp": "2025-09-27T09:28:42.334567",
+      "cd_mun": "2607505",
+      "cidade": "Itaíba",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 94,
+      "timestamp": "2025-09-27T09:28:42.377535",
+      "cd_mun": "2609154",
+      "cidade": "Manari",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 95,
+      "timestamp": "2025-09-27T09:28:42.424899",
+      "cd_mun": "2610806",
+      "cidade": "Pedra",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 96,
+      "timestamp": "2025-09-27T09:28:42.576846",
+      "cd_mun": "2610905",
+      "cidade": "Pesqueira",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 97,
+      "timestamp": "2025-09-27T09:28:42.723933",
+      "cd_mun": "2611200",
+      "cidade": "Poção",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 98,
+      "timestamp": "2025-09-27T09:28:42.830257",
+      "cd_mun": "2614105",
+      "cidade": "Sertânia",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 99,
+      "timestamp": "2025-09-27T09:28:42.893368",
+      "cd_mun": "2615805",
+      "cidade": "Tupanatinga",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 100,
+      "timestamp": "2025-09-27T09:28:42.971164",
+      "cd_mun": "2616001",
+      "cidade": "Venturosa",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 101,
+      "timestamp": "2025-09-27T09:31:33.308833",
+      "cd_mun": "2601706",
+      "cidade": "Belo Jardim",
+      "zona_anterior": "Zona Arcoverde",
+      "zona_nova": "Zona RENOMEAR",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 102,
+      "timestamp": "2025-09-27T09:31:33.339593",
+      "cd_mun": "2603108",
+      "cidade": "Cachoeirinha",
+      "zona_anterior": "Zona Arcoverde",
+      "zona_nova": "Zona RENOMEAR",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 103,
+      "timestamp": "2025-09-27T09:31:33.473128",
+      "cd_mun": "2603801",
+      "cidade": "Capoeiras",
+      "zona_anterior": "Zona Arcoverde",
+      "zona_nova": "Zona RENOMEAR",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 104,
+      "timestamp": "2025-09-27T09:31:33.613212",
+      "cd_mun": "2612406",
+      "cidade": "Sanharó",
+      "zona_anterior": "Zona Arcoverde",
+      "zona_nova": "Zona RENOMEAR",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 105,
+      "timestamp": "2025-09-27T09:31:33.805176",
+      "cd_mun": "2613008",
+      "cidade": "São Bento do Una",
+      "zona_anterior": "Zona Arcoverde",
+      "zona_nova": "Zona RENOMEAR",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 106,
+      "timestamp": "2025-09-27T09:31:33.956024",
+      "cd_mun": "2613107",
+      "cidade": "São Caitano",
+      "zona_anterior": "Zona Arcoverde",
+      "zona_nova": "Zona RENOMEAR",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 107,
+      "timestamp": "2025-09-27T09:31:34.118826",
+      "cd_mun": "2614709",
+      "cidade": "Tacaimbó",
+      "zona_anterior": "Zona Arcoverde",
+      "zona_nova": "Zona RENOMEAR",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 108,
+      "timestamp": "2025-09-27T09:31:45.234299",
+      "cd_mun": "2600500",
+      "cidade": "águas Belas",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 109,
+      "timestamp": "2025-09-27T09:31:45.310020",
+      "cd_mun": "2600609",
+      "cidade": "Alagoinha",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 110,
+      "timestamp": "2025-09-27T09:31:45.428350",
+      "cd_mun": "2601201",
+      "cidade": "Arcoverde",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 111,
+      "timestamp": "2025-09-27T09:31:45.563885",
+      "cd_mun": "2602803",
+      "cidade": "Buíque",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 112,
+      "timestamp": "2025-09-27T09:31:45.641817",
+      "cd_mun": "2605103",
+      "cidade": "Custódia",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 113,
+      "timestamp": "2025-09-27T09:31:45.725611",
+      "cd_mun": "2606507",
+      "cidade": "Iati",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 114,
+      "timestamp": "2025-09-27T09:31:45.859714",
+      "cd_mun": "2606606",
+      "cidade": "Ibimirim",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 115,
+      "timestamp": "2025-09-27T09:31:45.968811",
+      "cd_mun": "2607000",
+      "cidade": "Inajá",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 116,
+      "timestamp": "2025-09-27T09:31:46.045923",
+      "cd_mun": "2607505",
+      "cidade": "Itaíba",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 117,
+      "timestamp": "2025-09-27T09:31:46.140485",
+      "cd_mun": "2609154",
+      "cidade": "Manari",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 118,
+      "timestamp": "2025-09-27T09:31:46.228443",
+      "cd_mun": "2610806",
+      "cidade": "Pedra",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 119,
+      "timestamp": "2025-09-27T09:31:46.306189",
+      "cd_mun": "2610905",
+      "cidade": "Pesqueira",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 120,
+      "timestamp": "2025-09-27T09:31:46.434009",
+      "cd_mun": "2611200",
+      "cidade": "Poção",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 121,
+      "timestamp": "2025-09-27T09:31:46.564166",
+      "cd_mun": "2614105",
+      "cidade": "Sertânia",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 122,
+      "timestamp": "2025-09-27T09:31:46.626771",
+      "cd_mun": "2615805",
+      "cidade": "Tupanatinga",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 123,
+      "timestamp": "2025-09-27T09:31:46.761748",
+      "cd_mun": "2616001",
+      "cidade": "Venturosa",
+      "zona_anterior": "Zona Arco Verde",
+      "zona_nova": "Zona Arcoverde",
+      "usuario": "SistemaEdicaoZona",
+      "tipo": "alteracao_zona"
     }
   ],
   "estatisticas": {
-    "total_alteracoes": 75,
+    "total_alteracoes": 123,
     "municipios_alterados": 0,
     "zonas_modificadas": [
       "Caruaru Sul",
@@ -775,7 +1255,9 @@
       "Zona Agreste",
       "Zona Maceio Sul",
       "Zona Maceio Norte",
-      "Zona Sertão"
+      "Zona Sertão",
+      "Zona RENOMEAR",
+      "Zona Arcoverde"
     ]
   }
 }
