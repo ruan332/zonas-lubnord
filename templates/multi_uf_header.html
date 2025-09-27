@@ -1,0 +1,345 @@
+<!-- 
+    Multi-UF Header Extension
+    Adicione este código ao template existente para incluir o seletor de UF
+-->
+
+<!-- CSS para o seletor Multi-UF -->
+<style>
+    .multi-uf-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 10px 0;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .uf-selector-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .uf-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .uf-selector-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 15px;
+        border-radius: 25px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .uf-label {
+        font-weight: 600;
+        margin: 0;
+        white-space: nowrap;
+    }
+    
+    .uf-select {
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: 500;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 180px;
+    }
+    
+    .uf-select:hover {
+        background: white;
+        transform: translateY(-1px);
+    }
+    
+    .uf-select:focus {
+        outline: none;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+    }
+    
+    .uf-stats {
+        display: flex;
+        gap: 20px;
+        font-size: 14px;
+    }
+    
+    .uf-stat-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .uf-stat-item i {
+        opacity: 0.8;
+    }
+    
+    .uf-loading-indicator {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 15px;
+        border-radius: 20px;
+    }
+    
+    .uf-loading-indicator.active {
+        display: flex;
+    }
+    
+    .uf-loading-spinner {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Responsivo */
+    @media (max-width: 768px) {
+        .uf-selector-container {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+        
+        .uf-info {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+        
+        .uf-selector-group {
+            justify-content: center;
+        }
+        
+        .uf-select {
+            width: 100%;
+            min-width: auto;
+        }
+        
+        .uf-stats {
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+    }
+</style>
+
+<!-- Header Multi-UF -->
+<div class="multi-uf-header">
+    <div class="container-fluid">
+        <div class="uf-selector-container">
+            <!-- Informações da UF -->
+            <div class="uf-info">
+                <!-- Seletor de UF -->
+                <div class="uf-selector-group">
+                    <label for="uf-select-header" class="uf-label">
+                        <i class="fas fa-map-marker-alt"></i> Estado:
+                    </label>
+                    <select id="uf-select-header" class="uf-select">
+                        <option value="">Carregando estados...</option>
+                    </select>
+                </div>
+                
+                <!-- Indicador de carregamento -->
+                <div id="uf-loading-header" class="uf-loading-indicator">
+                    <i class="fas fa-spinner uf-loading-spinner"></i>
+                    <span>Carregando...</span>
+                </div>
+            </div>
+            
+            <!-- Estatísticas da UF -->
+            <div id="uf-stats-header" class="uf-stats" style="display: none;">
+                <div class="uf-stat-item">
+                    <i class="fas fa-city"></i>
+                    <span id="total-municipios">-</span> municípios
+                </div>
+                <div class="uf-stat-item">
+                    <i class="fas fa-palette"></i>
+                    <span id="total-zonas">-</span> zonas
+                </div>
+                <div class="uf-stat-item">
+                    <i class="fas fa-users"></i>
+                    <span id="populacao-total">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript para o header Multi-UF -->
+<script>
+class MultiUFHeader {
+    constructor() {
+        this.ufAtual = 'PE';
+        this.inicializar();
+    }
+    
+    inicializar() {
+        this.configurarEventos();
+        this.carregarUfsDisponiveis();
+        this.configurarEventosCustomizados();
+    }
+    
+    configurarEventos() {
+        const select = document.getElementById('uf-select-header');
+        if (select) {
+            select.addEventListener('change', (e) => {
+                const novaUF = e.target.value;
+                if (novaUF && novaUF !== this.ufAtual) {
+                    this.carregarUF(novaUF);
+                }
+            });
+        }
+    }
+    
+    configurarEventosCustomizados() {
+        // Escutar eventos da extensão principal
+        document.addEventListener('ufCarregada', (e) => {
+            this.atualizarHeader(e.detail);
+        });
+        
+        document.addEventListener('ufCarregadaWebSocket', (e) => {
+            this.atualizarHeader(e.detail);
+        });
+    }
+    
+    async carregarUfsDisponiveis() {
+        try {
+            const response = await fetch('/api/ufs_disponiveis');
+            const data = await response.json();
+            
+            if (data.sucesso) {
+                this.atualizarSeletorUF(data.ufs, data.uf_atual);
+                this.carregarInfoUFAtual();
+            }
+        } catch (error) {
+            console.error('Erro ao carregar UFs no header:', error);
+        }
+    }
+    
+    atualizarSeletorUF(ufs, ufAtual) {
+        const select = document.getElementById('uf-select-header');
+        if (!select) return;
+        
+        select.innerHTML = '';
+        
+        ufs.forEach(uf => {
+            const option = document.createElement('option');
+            option.value = uf.codigo;
+            option.textContent = `${uf.codigo} - ${uf.nome}`;
+            option.selected = uf.codigo === ufAtual;
+            select.appendChild(option);
+        });
+        
+        this.ufAtual = ufAtual;
+    }
+    
+    async carregarUF(codigoUF) {
+        this.mostrarCarregando(true);
+        
+        try {
+            const response = await fetch(`/api/carregar_uf/${codigoUF}`);
+            const data = await response.json();
+            
+            if (data.sucesso) {
+                this.ufAtual = codigoUF;
+                this.atualizarHeader(data);
+                
+                // Notificar outros componentes
+                const evento = new CustomEvent('ufCarregadaHeader', {
+                    detail: data
+                });
+                document.dispatchEvent(evento);
+            } else {
+                console.error('Erro ao carregar UF:', data.erro);
+                // Reverter seleção
+                document.getElementById('uf-select-header').value = this.ufAtual;
+            }
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            document.getElementById('uf-select-header').value = this.ufAtual;
+        } finally {
+            this.mostrarCarregando(false);
+        }
+    }
+    
+    async carregarInfoUFAtual() {
+        try {
+            const response = await fetch('/api/info_uf_atual');
+            const data = await response.json();
+            
+            if (data.sucesso) {
+                this.atualizarEstatisticas(data.estatisticas);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar info da UF atual:', error);
+        }
+    }
+    
+    atualizarHeader(data) {
+        // Atualizar seletor se necessário
+        const select = document.getElementById('uf-select-header');
+        if (select && data.uf) {
+            select.value = data.uf;
+        }
+        
+        // Atualizar estatísticas
+        if (data.estatisticas) {
+            this.atualizarEstatisticas(data.estatisticas);
+        }
+    }
+    
+    atualizarEstatisticas(stats) {
+        const statsContainer = document.getElementById('uf-stats-header');
+        const totalMunicipios = document.getElementById('total-municipios');
+        const totalZonas = document.getElementById('total-zonas');
+        const populacaoTotal = document.getElementById('populacao-total');
+        
+        if (totalMunicipios) {
+            totalMunicipios.textContent = stats.total_municipios || '-';
+        }
+        
+        if (totalZonas) {
+            totalZonas.textContent = stats.total_zonas || '-';
+        }
+        
+        if (populacaoTotal) {
+            const pop = stats.populacao_total || 0;
+            populacaoTotal.textContent = pop > 0 ? pop.toLocaleString() : '-';
+        }
+        
+        if (statsContainer) {
+            statsContainer.style.display = 'flex';
+        }
+    }
+    
+    mostrarCarregando(mostrar) {
+        const loading = document.getElementById('uf-loading-header');
+        const select = document.getElementById('uf-select-header');
+        
+        if (loading) {
+            loading.classList.toggle('active', mostrar);
+        }
+        
+        if (select) {
+            select.disabled = mostrar;
+        }
+    }
+}
+
+// Inicializar header Multi-UF
+document.addEventListener('DOMContentLoaded', () => {
+    window.multiUFHeader = new MultiUFHeader();
+});
+</script>

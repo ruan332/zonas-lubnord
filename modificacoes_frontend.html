@@ -1,0 +1,251 @@
+<!-- 
+MODIFICAÇÕES PARA O FRONTEND - mapa_interativo.html
+
+Adicione estas seções no seu template HTML existente
+-->
+
+<!-- 1. ADICIONAR NO CSS (dentro da tag <style>) -->
+<style>
+/* Estilos para o seletor de UF */
+.uf-selector {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.uf-card {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    display: inline-block;
+    min-width: 80px;
+}
+
+.uf-card:hover {
+    border-color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.uf-card.active {
+    border-color: #28a745;
+    background-color: #d4edda;
+}
+
+.uf-card.incompleto {
+    border-color: #ffc107;
+    background-color: #fff3cd;
+}
+
+.info-uf-atual {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.status-badge {
+    font-size: 0.75em;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+.status-ativo {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-incompleto {
+    background-color: #ffc107;
+    color: #212529;
+}
+</style>
+
+<!-- 2. ADICIONAR NO HTML (no painel lateral, antes das estatísticas) -->
+<div class="col-md-3">
+    <!-- NOVO: Seletor de UF -->
+    <div class="uf-selector">
+        <h5><i class="fas fa-map"></i> Selecionar UF</h5>
+        <div id="lista-ufs" class="loading">
+            <i class="fas fa-spinner fa-spin"></i> Carregando UFs...
+        </div>
+    </div>
+
+    <!-- NOVO: Informações da UF Atual -->
+    <div id="info-uf-atual" class="info-uf-atual" style="display: none;">
+        <h6><i class="fas fa-info-circle"></i> UF Atual</h6>
+        <div id="detalhes-uf-atual"></div>
+    </div>
+
+    <!-- Estatísticas existentes... -->
+    <div class="stats-panel">
+        <!-- Conteúdo existente das estatísticas -->
+    </div>
+</div>
+
+<!-- 3. ADICIONAR NO JAVASCRIPT (no final do script existente) -->
+<script>
+// Variáveis globais adicionais
+let ufAtual = null;
+let ufsDisponiveis = [];
+
+// Modificar a função de inicialização existente
+document.addEventListener('DOMContentLoaded', function() {
+    inicializarMapa(); // função existente
+    inicializarWebSocket(); // função existente
+    
+    // NOVO: Carregar UFs disponíveis
+    carregarUFsDisponiveis();
+});
+
+// NOVAS FUNÇÕES PARA MULTI-UF
+
+function carregarUFsDisponiveis() {
+    fetch('/api/ufs_disponiveis')
+        .then(response => response.json())
+        .then(data => {
+            if (data.sucesso) {
+                ufsDisponiveis = data.ufs;
+                exibirUFsDisponiveis(data.ufs);
+                
+                if (data.uf_atual) {
+                    ufAtual = data.uf_atual.codigo;
+                    atualizarInfoUFAtual(data.uf_atual);
+                }
+            } else {
+                mostrarAlerta('danger', 'Erro ao carregar UFs: ' + data.erro);
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            mostrarAlerta('danger', 'Erro de conexão ao carregar UFs');
+        });
+}
+
+function exibirUFsDisponiveis(ufs) {
+    const container = document.getElementById('lista-ufs');
+    container.innerHTML = '';
+
+    ufs.forEach(uf => {
+        const ufCard = document.createElement('div');
+        ufCard.className = `uf-card ${uf.status === 'ativo' ? '' : 'incompleto'}`;
+        if (ufAtual === uf.codigo) {
+            ufCard.classList.add('active');
+        }
+
+        ufCard.innerHTML = `
+            <strong>${uf.codigo}</strong><br>
+            <small>${uf.nome}</small><br>
+            <small class="text-muted">${uf.total_municipios} municípios</small><br>
+            <span class="status-badge ${uf.status === 'ativo' ? 'status-ativo' : 'status-incompleto'}">
+                ${uf.status === 'ativo' ? 'Ativo' : 'Incompleto'}
+            </span>
+        `;
+
+        ufCard.onclick = () => selecionarUF(uf.codigo);
+        container.appendChild(ufCard);
+    });
+}
+
+function selecionarUF(codigoUF) {
+    if (codigoUF === ufAtual) return;
+
+    mostrarAlerta('info', `Carregando UF ${codigoUF}...`);
+    
+    // Usar WebSocket para seleção em tempo real
+    socket.emit('selecionar_uf', { codigo_uf: codigoUF });
+    
+    // Atualizar visual dos cards
+    document.querySelectorAll('.uf-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    event.target.closest('.uf-card').classList.add('active');
+}
+
+function atualizarInfoUFAtual(ufInfo) {
+    const container = document.getElementById('info-uf-atual');
+    const detalhes = document.getElementById('detalhes-uf-atual');
+    
+    if (ufInfo) {
+        detalhes.innerHTML = `
+            <strong>${ufInfo.nome} (${ufInfo.codigo})</strong><br>
+            <small><i class="fas fa-city"></i> ${ufInfo.total_municipios} municípios</small><br>
+            <small><i class="fas fa-layer-group"></i> ${ufInfo.total_zonas} zonas</small>
+        `;
+        container.style.display = 'block';
+    } else {
+        container.style.display = 'none';
+    }
+}
+
+// NOVOS HANDLERS WEBSOCKET (adicionar na função inicializarWebSocket existente)
+
+// Adicionar estes handlers na função inicializarWebSocket():
+socket.on('uf_alterada', function(data) {
+    if (data.sucesso) {
+        ufAtual = data.uf_atual;
+        mostrarAlerta('success', data.mensagem);
+        atualizarInfoUFAtual(data.uf_info);
+        
+        // Atualizar visual dos cards
+        document.querySelectorAll('.uf-card').forEach(card => {
+            card.classList.remove('active');
+        });
+        document.querySelector(`.uf-card:nth-child(${getUFIndex(data.uf_atual) + 1})`).classList.add('active');
+    }
+});
+
+socket.on('dados_mapa_atualizados', function(data) {
+    // Recarregar dados do mapa
+    carregarDadosMapa(data.dados);
+});
+
+socket.on('zonas_atualizadas', function(data) {
+    // Atualizar zonas disponíveis
+    zonasDisponiveis = data.cores;
+});
+
+socket.on('erro_selecao_uf', function(data) {
+    mostrarAlerta('danger', data.mensagem);
+});
+
+function getUFIndex(codigoUF) {
+    return ufsDisponiveis.findIndex(uf => uf.codigo === codigoUF);
+}
+
+// Função para mostrar alertas (se não existir)
+function mostrarAlerta(tipo, mensagem) {
+    // Implementar sistema de alertas se não existir
+    console.log(`[${tipo.toUpperCase()}] ${mensagem}`);
+    
+    // Exemplo simples com alert (substitua por sistema mais sofisticado)
+    if (tipo === 'danger') {
+        alert('Erro: ' + mensagem);
+    } else if (tipo === 'success') {
+        console.log('✅ ' + mensagem);
+    } else if (tipo === 'info') {
+        console.log('ℹ️ ' + mensagem);
+    }
+}
+</script>
+
+<!-- 
+INSTRUÇÕES DE APLICAÇÃO:
+
+1. CSS: Adicione os estilos no <style> existente
+2. HTML: Adicione o seletor de UF no painel lateral
+3. JavaScript: Adicione as novas funções no script existente
+4. WebSocket: Adicione os novos handlers na função inicializarWebSocket()
+
+TESTE:
+- Execute o app modificado
+- Verifique se o seletor de UF aparece
+- Teste a seleção entre PE, AL e SE
+- Verifique se os dados carregam corretamente
+-->

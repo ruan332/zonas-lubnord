@@ -1,0 +1,32 @@
+{
+  "PE": {
+    "codigo": "PE",
+    "nome": "Pernambuco",
+    "ativo": true,
+    "arquivo_dados": "dados_municipios.csv",
+    "arquivo_geometrias": "geometrias.json",
+    "arquivo_cores": "zona_cores.json",
+    "arquivo_alteracoes": "alteracoes.json",
+    "diretorio": "PE"
+  },
+  "AL": {
+    "codigo": "AL",
+    "nome": "Alagoas",
+    "ativo": true,
+    "arquivo_dados": "dados_municipios.csv",
+    "arquivo_geometrias": "geometrias.json",
+    "arquivo_cores": "zona_cores.json",
+    "arquivo_alteracoes": "alteracoes.json",
+    "diretorio": "AL"
+  },
+  "SE": {
+    "codigo": "SE",
+    "nome": "Sergipe",
+    "ativo": true,
+    "arquivo_dados": "dados_municipios.csv",
+    "arquivo_geometrias": "geometrias.json",
+    "arquivo_cores": "zona_cores.json",
+    "arquivo_alteracoes": "alteracoes.json",
+    "diretorio": "SE"
+  }
+}

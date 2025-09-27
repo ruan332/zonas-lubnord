@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Aplicação Web com Mapa Interativo em Tempo Real
 Permite edição de zonas diretamente no mapa sem gerar arquivos
@@ -14,50 +13,65 @@ from flask_socketio import SocketIO, emit
 from datetime import datetime
 import geopandas as gpd
 from sistema_persistencia import SistemaPersistencia
+from gerenciador_ufs import gerenciador_ufs
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mapa_interativo_2025'
 socketio = SocketIO(app, cors_allowed_origins="*")
-
 class GerenciadorMapaInterativo:
     def __init__(self):
         self.persistencia = SistemaPersistencia()
+        self.uf_atual = 'PE'  # UF padrão (Pernambuco)
+        self.dados_uf_atual = None
+        self.modo_multi_uf = True  # Habilitar modo multi-UF
         self.carregar_dados_iniciais()
         
     def carregar_dados_iniciais(self):
-        """Carrega todos os dados necessários da base original com sistema robusto de fallback"""
+        """Carrega dados iniciais - tenta multi-UF primeiro, fallback para PE"""
         try:
-            # Carregar dados dos municípios da base original
-            dados_originais_path = 'pernambuco_dados_gerar_mapa.csv'
+            if self.modo_multi_uf:
+                # Tentar carregar UF atual via sistema multi-UF
+                if self.carregar_uf(self.uf_atual):
+                    print(f"✅ Sistema Multi-UF ativo - UF atual: {self.uf_atual}")
+                    return
+                else:
+                    print(f"⚠️ Falha no carregamento inicial, mas mantendo modo Multi-UF ativo")
+                    # Não desativar modo_multi_uf, apenas usar fallback temporário
+                    
+            # Fallback: carregar dados tradicionais de Pernambuco
+            self._carregar_dados_pernambuco_tradicional()
             
-            # Verificar se arquivo base existe, se não, criar um arquivo base padrão
-            if not os.path.exists(dados_originais_path):
-                print(f"⚠️ Arquivo base não encontrado: {dados_originais_path}")
-                print(f"🔄 Tentando criar arquivo base padrão...")
-                
-                # Tentar criar arquivo base padrão a partir de backup ou dados mínimos
-                if not self._criar_arquivo_base_padrao(dados_originais_path):
-                    raise FileNotFoundError(f"Não foi possível criar ou encontrar arquivo base: {dados_originais_path}")
+        except Exception as e:
+            print(f"❌ Erro ao carregar dados iniciais: {e}")
+            raise
+    
+    def carregar_uf(self, codigo_uf):
+        """Carrega uma UF específica usando o sistema multi-UF"""
+        try:
+            if not gerenciador_ufs.validar_uf(codigo_uf):
+                print(f"⚠️ UF {codigo_uf} não disponível no sistema multi-UF")
+                return False
             
-            # Carregar dados com tratamento robusto de erros
-            self.dados_municipios = self._carregar_dados_com_fallback(dados_originais_path)
+            # Carregar dados da UF
+            self.dados_uf_atual = gerenciador_ufs.carregar_dados_uf(codigo_uf)
+            self.uf_atual = codigo_uf
             
-            print(f"✅ Dados originais carregados: {len(self.dados_municipios)} municípios")
-            print(f"📁 Fonte: {dados_originais_path}")
-            print(f"📊 Colunas disponíveis: {list(self.dados_municipios.columns)}")
+            # Extrair dados para compatibilidade com sistema existente
+            self.dados_municipios = self.dados_uf_atual['municipios'].copy()
+            self.zona_cores = self.dados_uf_atual['zona_cores']
             
-            # Carregar geometrias
-            self.geometrias = gpd.read_file('pernambuco.json')
+            # Converter geometrias para GeoDataFrame
+            geometrias_json = self.dados_uf_atual['geometrias']
+            self.geometrias = gpd.GeoDataFrame.from_features(geometrias_json['features'])
             self.geometrias['id'] = self.geometrias['id'].astype(str)
-            print(f"✅ Geometrias carregadas: {len(self.geometrias)} polígonos")
             
-            # Carregar cores das zonas
-            with open('zona_cores_mapping.json', 'r', encoding='utf-8') as f:
-                self.zona_cores = json.load(f)
-            print(f"✅ Cores carregadas: {len(self.zona_cores)} zonas")
+            print(f"✅ UF {codigo_uf} carregada:")
+            print(f"   • Municípios: {len(self.dados_municipios)}")
+            print(f"   • Geometrias: {len(self.geometrias)}")
+            print(f"   • Zonas: {len(self.zona_cores)}")
             
-            # Aplicar alterações salvas se existirem (após carregar cores)
-            self._aplicar_alteracoes_salvas()
+            # Aplicar alterações salvas se existirem
+            self._aplicar_alteracoes_salvas_multi_uf()
             
             # Verificar integridade dos dados carregados
             self._verificar_integridade_dados()
@@ -65,9 +79,51 @@ class GerenciadorMapaInterativo:
             # Mesclar dados com geometrias
             self.preparar_dados_mapa()
             
+            return True
+            
         except Exception as e:
-            print(f"❌ Erro ao carregar dados: {e}")
-            raise
+            print(f"❌ Erro ao carregar UF {codigo_uf}: {e}")
+            return False
+    
+    def _carregar_dados_pernambuco_tradicional(self):
+        """Carrega dados tradicionais de Pernambuco (fallback)"""
+        # Carregar dados dos municípios da base original
+        dados_originais_path = 'pernambuco_dados_gerar_mapa.csv'
+        
+        # Verificar se arquivo base existe, se não, criar um arquivo base padrão
+        if not os.path.exists(dados_originais_path):
+            print(f"⚠️ Arquivo base não encontrado: {dados_originais_path}")
+            print(f"🔄 Tentando criar arquivo base padrão...")
+            
+            # Tentar criar arquivo base padrão a partir de backup ou dados mínimos
+            if not self._criar_arquivo_base_padrao(dados_originais_path):
+                raise FileNotFoundError(f"Não foi possível criar ou encontrar arquivo base: {dados_originais_path}")
+        
+        # Carregar dados com tratamento robusto de erros
+        self.dados_municipios = self._carregar_dados_com_fallback(dados_originais_path)
+        
+        print(f"✅ Dados originais carregados: {len(self.dados_municipios)} municípios")
+        print(f"📁 Fonte: {dados_originais_path}")
+        print(f"📊 Colunas disponíveis: {list(self.dados_municipios.columns)}")
+        
+        # Carregar geometrias
+        self.geometrias = gpd.read_file('pernambuco.json')
+        self.geometrias['id'] = self.geometrias['id'].astype(str)
+        print(f"✅ Geometrias carregadas: {len(self.geometrias)} polígonos")
+        
+        # Carregar cores das zonas
+        with open('zona_cores_mapping.json', 'r', encoding='utf-8') as f:
+            self.zona_cores = json.load(f)
+        print(f"✅ Cores carregadas: {len(self.zona_cores)} zonas")
+        
+        # Aplicar alterações salvas se existirem (após carregar cores)
+        self._aplicar_alteracoes_salvas()
+        
+        # Verificar integridade dos dados carregados
+        self._verificar_integridade_dados()
+        
+        # Mesclar dados com geometrias
+        self.preparar_dados_mapa()
     
     def _criar_arquivo_base_padrao(self, caminho_arquivo):
         """Cria um arquivo base padrão se não existir"""
@@ -199,6 +255,29 @@ class GerenciadorMapaInterativo:
                     
         except Exception as e:
             print(f"⚠️ Erro ao aplicar alterações salvas: {e}")
+    
+    def _aplicar_alteracoes_salvas_multi_uf(self):
+        """Aplica alterações salvas do sistema multi-UF"""
+        try:
+            if self.dados_uf_atual and 'alteracoes' in self.dados_uf_atual:
+                alteracoes = self.dados_uf_atual['alteracoes']['alteracoes']
+                if alteracoes:
+                    alteracoes_aplicadas = 0
+                    for alt in alteracoes:
+                        municipio_id = str(alt['municipio_id'])
+                        nova_zona = alt['zona_nova']
+                        
+                        # Encontrar e atualizar o município
+                        mask = self.dados_municipios['CD_Mun'].astype(str) == municipio_id
+                        if mask.any():
+                            self.dados_municipios.loc[mask, 'Zona'] = nova_zona
+                            alteracoes_aplicadas += 1
+                    
+                    if alteracoes_aplicadas > 0:
+                        print(f"🔄 Aplicadas {alteracoes_aplicadas} alterações do sistema multi-UF")
+                        
+        except Exception as e:
+            print(f"⚠️ Erro ao aplicar alterações multi-UF: {e}")
     
     def _verificar_integridade_dados(self):
         """Verifica integridade dos dados carregados"""
@@ -378,6 +457,8 @@ class GerenciadorMapaInterativo:
             tem_sell_out = 'SELL OUT ANUAL' in self.dados_municipios.columns
             tem_potencial = 'POTENCIAL ANUAL' in self.dados_municipios.columns
             tem_pdv = 'PDV' in self.dados_municipios.columns
+            tem_sell_out_mes = 'SELL OUT MÊS' in self.dados_municipios.columns
+            tem_potencial_mes = 'POTENCIAL MÊS' in self.dados_municipios.columns
             
             # Agregação básica sempre funciona
             agg_dict = {'CD_Mun': 'count'}
@@ -389,6 +470,10 @@ class GerenciadorMapaInterativo:
                 agg_dict['POTENCIAL ANUAL'] = 'sum'
             if tem_pdv:
                 agg_dict['PDV'] = 'sum'
+            if tem_sell_out_mes:
+                agg_dict['SELL OUT MÊS'] = 'sum'
+            if tem_potencial_mes:
+                agg_dict['POTENCIAL MÊS'] = 'sum'
             
             stats = self.dados_municipios.groupby('Zona').agg(agg_dict)
             stats = stats.rename(columns={'CD_Mun': 'total_municipios'})
@@ -419,6 +504,28 @@ class GerenciadorMapaInterativo:
                 # Adicionar PDV se disponível
                 if tem_pdv and 'PDV' in row:
                     stat_item['total_pdv'] = int(row['PDV'])
+                
+                # Adicionar dados mensais se disponíveis
+                if tem_sell_out_mes and 'SELL OUT MÊS' in row:
+                    stat_item['total_sell_out_mes'] = float(row['SELL OUT MÊS'])
+                
+                if tem_potencial_mes and 'POTENCIAL MÊS' in row:
+                    stat_item['total_potencial_mes'] = float(row['POTENCIAL MÊS'])
+                
+                # Adicionar detalhes dos municípios para encontrar maior potencial
+                municipios_zona = self.dados_municipios[self.dados_municipios['Zona'] == zona]
+                municipios_detalhes = []
+                
+                for _, municipio in municipios_zona.iterrows():
+                    detalhe_municipio = {
+                        'nome': municipio.get('Cidade', ''),
+                        'cd_mun': municipio.get('CD_Mun', ''),
+                        'potencial_mes': float(municipio.get('POTENCIAL MÊS', 0)) if pd.notna(municipio.get('POTENCIAL MÊS', 0)) else 0,
+                        'sell_out_mes': float(municipio.get('SELL OUT MÊS', 0)) if pd.notna(municipio.get('SELL OUT MÊS', 0)) else 0
+                    }
+                    municipios_detalhes.append(detalhe_municipio)
+                
+                stat_item['municipios_detalhes'] = municipios_detalhes
                 
                 stats_dict[zona] = stat_item
             
@@ -1011,9 +1118,33 @@ def api_download_base_atualizada():
         from flask import make_response
         from datetime import datetime
         import io
+        import zipfile
+        import os
         
-        # Obter dados atuais com todas as alterações aplicadas
-        dados_atualizados = gerenciador.dados_municipios.copy()
+        # Verificar se estamos no modo multi-UF
+        if hasattr(gerenciador, 'extensao_multi_uf') and gerenciador.extensao_multi_uf:
+            # Modo multi-UF: baixar todas as UFs
+            todas_ufs_dados = {}
+            
+            # Obter lista de UFs disponíveis
+            ufs_disponiveis = ['PE', 'AL', 'SE']  # UFs configuradas
+            
+            for uf in ufs_disponiveis:
+                try:
+                    # Carregar dados da UF
+                    caminho_csv = f'dados_ufs/{uf}/dados_municipios.csv'
+                    if os.path.exists(caminho_csv):
+                        import pandas as pd
+                        dados_uf = pd.read_csv(caminho_csv, encoding='utf-8')
+                        todas_ufs_dados[uf] = dados_uf
+                        print(f"   📊 {uf}: {len(dados_uf)} municípios carregados")
+                    else:
+                        print(f"   ⚠️ {uf}: Arquivo não encontrado")
+                except Exception as e:
+                    print(f"   ❌ {uf}: Erro ao carregar - {e}")
+        else:
+            # Modo single-UF: usar dados atuais
+            dados_atualizados = gerenciador.dados_municipios.copy()
         
         # Definir ordem preferencial das colunas para o CSV
         colunas_preferenciais = [
@@ -1022,36 +1153,85 @@ def api_download_base_atualizada():
             'POPULAÇÃO ', 'PDV', '%SHARE'
         ]
         
-        # Identificar colunas disponíveis na ordem preferencial
-        colunas_para_exportar = []
-        for col in colunas_preferenciais:
-            if col in dados_atualizados.columns:
-                colunas_para_exportar.append(col)
-        
-        # Adicionar outras colunas que não estão na lista preferencial (exceto 'Cor')
-        for col in dados_atualizados.columns:
-            if col not in colunas_para_exportar and col != 'Cor':
-                colunas_para_exportar.append(col)
-        
-        # Preparar dados para exportação
-        dados_exportacao = dados_atualizados[colunas_para_exportar].copy()
-        
-        # Converter para CSV em memória
-        output = io.StringIO()
-        dados_exportacao.to_csv(output, index=False, encoding='utf-8')
-        csv_content = output.getvalue()
-        output.close()
-        
-        # Criar resposta com headers apropriados para download
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"pernambuco_dados_atualizada_{timestamp}.csv"
         
-        response = make_response(csv_content)
-        response.headers['Content-Type'] = 'text/csv; charset=utf-8'
-        response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
-        response.headers['Content-Length'] = len(csv_content.encode('utf-8'))
-        
-        print(f"📥 Download da base atualizada: {filename} ({len(dados_exportacao)} registros, {len(colunas_para_exportar)} colunas)")
+        if hasattr(gerenciador, 'extensao_multi_uf') and gerenciador.extensao_multi_uf and 'todas_ufs_dados' in locals():
+            # Criar ZIP com todas as UFs
+            zip_buffer = io.BytesIO()
+            
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                for uf, dados_uf in todas_ufs_dados.items():
+                    # Identificar colunas disponíveis na ordem preferencial
+                    colunas_para_exportar = []
+                    for col in colunas_preferenciais:
+                        if col in dados_uf.columns:
+                            colunas_para_exportar.append(col)
+                    
+                    # Adicionar outras colunas (exceto 'Cor')
+                    for col in dados_uf.columns:
+                        if col not in colunas_para_exportar and col != 'Cor':
+                            colunas_para_exportar.append(col)
+                    
+                    # Preparar dados para exportação
+                    dados_exportacao = dados_uf[colunas_para_exportar].copy()
+                    
+                    # Converter para CSV
+                    csv_output = io.StringIO()
+                    dados_exportacao.to_csv(csv_output, index=False, encoding='utf-8')
+                    csv_content = csv_output.getvalue()
+                    csv_output.close()
+                    
+                    # Adicionar ao ZIP
+                    filename_csv = f"{uf.lower()}_dados_municipios_{timestamp}.csv"
+                    zip_file.writestr(filename_csv, csv_content.encode('utf-8'))
+                    
+                    print(f"   📁 {uf}: {len(dados_exportacao)} registros, {len(colunas_para_exportar)} colunas")
+            
+            zip_buffer.seek(0)
+            zip_content = zip_buffer.getvalue()
+            zip_buffer.close()
+            
+            # Criar resposta ZIP
+            filename_zip = f"todas_ufs_dados_atualizados_{timestamp}.zip"
+            
+            response = make_response(zip_content)
+            response.headers['Content-Type'] = 'application/zip'
+            response.headers['Content-Disposition'] = f'attachment; filename="{filename_zip}"'
+            response.headers['Content-Length'] = len(zip_content)
+            
+            print(f"📦 Download ZIP criado: {filename_zip} ({len(todas_ufs_dados)} UFs)")
+            
+        else:
+            # Modo single-UF: CSV único
+            # Identificar colunas disponíveis na ordem preferencial
+            colunas_para_exportar = []
+            for col in colunas_preferenciais:
+                if col in dados_atualizados.columns:
+                    colunas_para_exportar.append(col)
+            
+            # Adicionar outras colunas (exceto 'Cor')
+            for col in dados_atualizados.columns:
+                if col not in colunas_para_exportar and col != 'Cor':
+                    colunas_para_exportar.append(col)
+            
+            # Preparar dados para exportação
+            dados_exportacao = dados_atualizados[colunas_para_exportar].copy()
+            
+            # Converter para CSV em memória
+            output = io.StringIO()
+            dados_exportacao.to_csv(output, index=False, encoding='utf-8')
+            csv_content = output.getvalue()
+            output.close()
+            
+            # Criar resposta CSV
+            filename = f"dados_municipios_atualizados_{timestamp}.csv"
+            
+            response = make_response(csv_content)
+            response.headers['Content-Type'] = 'text/csv; charset=utf-8'
+            response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+            response.headers['Content-Length'] = len(csv_content.encode('utf-8'))
+            
+            print(f"📥 Download CSV: {filename} ({len(dados_exportacao)} registros)")
         
         return response
         

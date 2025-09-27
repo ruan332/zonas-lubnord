@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Interativo Multi-UF - LubConecta</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        #map {
+            height: 70vh;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .uf-selector {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .uf-card {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .uf-card:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        
+        .uf-card.active {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+        
+        .uf-card.incompleto {
+            border-color: #ffc107;
+            background-color: #fff3cd;
+        }
+        
+        .stats-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .zona-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        
+        .zona-cor {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid #dee2e6;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .status-badge {
+            font-size: 0.75em;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        
+        .status-ativo {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .status-incompleto {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .info-uf-atual {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .municipio-popup {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .popup-header {
+            font-weight: bold;
+            color: #495057;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 5px;
+            margin-bottom: 8px;
+        }
+        
+        .popup-info {
+            margin: 3px 0;
+            font-size: 0.9em;
+        }
+        
+        .zona-selector {
+            margin-top: 10px;
+        }
+        
+        .btn-alterar-zona {
+            font-size: 0.8em;
+            padding: 2px 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-map-marked-alt"></i> Mapa Interativo Multi-UF</h1>
+                    <p class="mb-0">Sistema de gestão de zonas para múltiplas Unidades Federativas</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div id="conexao-status" class="badge bg-secondary">
+                        <i class="fas fa-circle"></i> Conectando...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Painel Lateral -->
+            <div class="col-md-3">
+                <!-- Seletor de UF -->
+                <div class="uf-selector">
+                    <h5><i class="fas fa-map"></i> Selecionar UF</h5>
+                    <div id="lista-ufs" class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Carregando UFs...
+                    </div>
+                </div>
+
+                <!-- Informações da UF Atual -->
+                <div id="info-uf-atual" class="info-uf-atual" style="display: none;">
+                    <h6><i class="fas fa-info-circle"></i> UF Atual</h6>
+                    <div id="detalhes-uf-atual"></div>
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="stats-panel">
+                    <h5><i class="fas fa-chart-bar"></i> Estatísticas por Zona</h5>
+                    <div id="estatisticas-zonas" class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Carregando...
+                    </div>
+                </div>
+
+                <!-- Instruções -->
+                <div class="stats-panel">
+                    <h6><i class="fas fa-info-circle"></i> Como usar</h6>
+                    <ul class="list-unstyled small">
+                        <li><i class="fas fa-mouse-pointer text-primary"></i> Selecione uma UF acima</li>
+                        <li><i class="fas fa-click text-success"></i> Clique em um município no mapa</li>
+                        <li><i class="fas fa-edit text-warning"></i> Altere a zona no popup</li>
+                        <li><i class="fas fa-save text-info"></i> Alterações são salvas automaticamente</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Mapa Principal -->
+            <div class="col-md-9">
+                <div id="map"></div>
+                
+                <!-- Alertas -->
+                <div id="alertas-container" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+    <script>
+        // Variáveis globais
+        let map;
+        let socket;
+        let dadosGeoJSON = null;
+        let layerMunicipios = null;
+        let ufAtual = null;
+        let zonasDisponiveis = {};
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarMapa();
+            inicializarWebSocket();
+            carregarUFsDisponiveis();
+        });
+
+        function inicializarMapa() {
+            // Criar mapa centralizado no Brasil
+            map = L.map('map').setView([-14.2350, -51.9253], 4);
+
+            // Adicionar camada base
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        }
+
+        function inicializarWebSocket() {
+            socket = io();
+
+            socket.on('connect', function() {
+                document.getElementById('conexao-status').innerHTML = 
+                    '<i class="fas fa-circle text-success"></i> Conectado';
+                document.getElementById('conexao-status').className = 'badge bg-success';
+            });
+
+            socket.on('disconnect', function() {
+                document.getElementById('conexao-status').innerHTML = 
+                    '<i class="fas fa-circle text-danger"></i> Desconectado';
+                document.getElementById('conexao-status').className = 'badge bg-danger';
+            });
+
+            socket.on('uf_selecionada', function(data) {
+                if (data.sucesso) {
+                    mostrarAlerta('success', data.mensagem);
+                    atualizarInfoUFAtual(data.uf_info);
+                }
+            });
+
+            socket.on('dados_mapa_atualizados', function(data) {
+                carregarDadosMapa(data.dados);
+            });
+
+            socket.on('zonas_atualizadas', function(data) {
+                zonasDisponiveis = data.cores;
+            });
+
+            socket.on('estatisticas_atualizadas', function(data) {
+                atualizarEstatisticas(data.estatisticas);
+            });
+
+            socket.on('zona_alterada', function(data) {
+                if (data.sucesso) {
+                    mostrarAlerta('success', data.mensagem);
+                    // Recarregar dados do mapa
+                    carregarDadosMapaAtual();
+                }
+            });
+
+            socket.on('erro_alteracao', function(data) {
+                mostrarAlerta('danger', data.mensagem);
+            });
+
+            socket.on('erro_selecao_uf', function(data) {
+                mostrarAlerta('danger', data.mensagem);
+            });
+        }
+
+        function carregarUFsDisponiveis() {
+            fetch('/api/ufs_disponiveis')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        exibirUFsDisponiveis(data.ufs_disponiveis);
+                        if (data.uf_atual) {
+                            ufAtual = data.uf_atual.codigo;
+                            atualizarInfoUFAtual(data.uf_atual);
+                            carregarDadosMapaAtual();
+                            carregarEstatisticas();
+                        }
+                    } else {
+                        mostrarAlerta('danger', 'Erro ao carregar UFs: ' + data.erro);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarAlerta('danger', 'Erro de conexão ao carregar UFs');
+                });
+        }
+
+        function exibirUFsDisponiveis(ufs) {
+            const container = document.getElementById('lista-ufs');
+            container.innerHTML = '';
+
+            ufs.forEach(uf => {
+                const ufCard = document.createElement('div');
+                ufCard.className = `uf-card ${uf.status === 'ativo' ? '' : 'incompleto'}`;
+                if (ufAtual === uf.codigo) {
+                    ufCard.classList.add('active');
+                }
+
+                ufCard.innerHTML = `
+                    <strong>${uf.codigo}</strong><br>
+                    <small>${uf.nome}</small><br>
+                    <small class="text-muted">${uf.total_municipios} municípios</small><br>
+                    <span class="status-badge ${uf.status === 'ativo' ? 'status-ativo' : 'status-incompleto'}">
+                        ${uf.status === 'ativo' ? 'Ativo' : 'Incompleto'}
+                    </span>
+                `;
+
+                ufCard.onclick = () => selecionarUF(uf.codigo);
+                container.appendChild(ufCard);
+            });
+        }
+
+        function selecionarUF(codigoUF) {
+            if (codigoUF === ufAtual) return;
+
+            mostrarAlerta('info', `Carregando UF ${codigoUF}...`);
+            
+            socket.emit('selecionar_uf', { codigo_uf: codigoUF });
+            ufAtual = codigoUF;
+            
+            // Atualizar visual dos cards
+            document.querySelectorAll('.uf-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.target.closest('.uf-card').classList.add('active');
+        }
+
+        function atualizarInfoUFAtual(ufInfo) {
+            const container = document.getElementById('info-uf-atual');
+            const detalhes = document.getElementById('detalhes-uf-atual');
+            
+            if (ufInfo) {
+                detalhes.innerHTML = `
+                    <strong>${ufInfo.nome} (${ufInfo.codigo})</strong><br>
+                    <small><i class="fas fa-city"></i> ${ufInfo.total_municipios} municípios</small><br>
+                    <small><i class="fas fa-layer-group"></i> ${ufInfo.total_zonas} zonas</small>
+                `;
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        function carregarDadosMapaAtual() {
+            fetch('/api/dados_mapa')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        carregarDadosMapa(data.dados);
+                    } else {
+                        mostrarAlerta('danger', 'Erro ao carregar dados do mapa: ' + data.erro);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarAlerta('danger', 'Erro de conexão ao carregar mapa');
+                });
+        }
+
+        function carregarDadosMapa(geojsonData) {
+            dadosGeoJSON = geojsonData;
+
+            // Remover camada anterior se existir
+            if (layerMunicipios) {
+                map.removeLayer(layerMunicipios);
+            }
+
+            // Adicionar nova camada
+            layerMunicipios = L.geoJSON(geojsonData, {
+                style: function(feature) {
+                    return {
+                        fillColor: feature.properties.cor,
+                        weight: 1,
+                        opacity: 1,
+                        color: '#666',
+                        fillOpacity: 0.7
+                    };
+                },
+                onEachFeature: function(feature, layer) {
+                    // Popup com informações do município
+                    const props = feature.properties;
+                    
+                    layer.bindPopup(`
+                        <div class="municipio-popup">
+                            <div class="popup-header">${props.cidade}</div>
+                            <div class="popup-info"><strong>UF:</strong> ${props.uf}</div>
+                            <div class="popup-info"><strong>Código:</strong> ${props.cd_mun}</div>
+                            <div class="popup-info"><strong>Zona Atual:</strong> 
+                                <span style="color: ${props.cor}">⬤</span> ${props.zona}
+                            </div>
+                            <div class="popup-info"><strong>Mesorregião:</strong> ${props.mesorregiao}</div>
+                            <div class="popup-info"><strong>Share:</strong> ${props.share}%</div>
+                            <div class="popup-info"><strong>PDV:</strong> ${props.pdv}</div>
+                            <div class="zona-selector">
+                                <select id="select-zona-${props.cd_mun}" class="form-select form-select-sm">
+                                    <option value="">Selecione nova zona...</option>
+                                </select>
+                                <button onclick="alterarZonaMunicipio('${props.cd_mun}')" 
+                                        class="btn btn-primary btn-alterar-zona mt-2">
+                                    <i class="fas fa-save"></i> Alterar Zona
+                                </button>
+                            </div>
+                        </div>
+                    `, {
+                        maxWidth: 300
+                    });
+
+                    // Carregar opções de zona quando popup abrir
+                    layer.on('popupopen', function() {
+                        carregarOpcoesZona(props.cd_mun, props.zona);
+                    });
+
+                    // Hover effects
+                    layer.on('mouseover', function() {
+                        layer.setStyle({
+                            weight: 3,
+                            color: '#333',
+                            fillOpacity: 0.9
+                        });
+                    });
+
+                    layer.on('mouseout', function() {
+                        layer.setStyle({
+                            weight: 1,
+                            color: '#666',
+                            fillOpacity: 0.7
+                        });
+                    });
+                }
+            }).addTo(map);
+
+            // Ajustar zoom para mostrar todos os municípios
+            if (geojsonData.features.length > 0) {
+                map.fitBounds(layerMunicipios.getBounds());
+            }
+
+            // Carregar zonas disponíveis
+            carregarZonasDisponiveis();
+        }
+
+        function carregarZonasDisponiveis() {
+            fetch('/api/zonas')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        zonasDisponiveis = data.cores;
+                    }
+                })
+                .catch(error => console.error('Erro ao carregar zonas:', error));
+        }
+
+        function carregarOpcoesZona(cdMun, zonaAtual) {
+            const select = document.getElementById(`select-zona-${cdMun}`);
+            if (!select) return;
+
+            select.innerHTML = '<option value="">Selecione nova zona...</option>';
+            
+            // Adicionar opção "Sem Zona"
+            const optionSemZona = document.createElement('option');
+            optionSemZona.value = 'Sem Zona';
+            optionSemZona.textContent = 'Sem Zona';
+            if (zonaAtual === 'Sem Zona') {
+                optionSemZona.selected = true;
+            }
+            select.appendChild(optionSemZona);
+
+            // Adicionar outras zonas
+            for (const [zona, cor] of Object.entries(zonasDisponiveis)) {
+                if (zona !== 'Sem Zona') {
+                    const option = document.createElement('option');
+                    option.value = zona;
+                    option.textContent = zona;
+                    if (zona === zonaAtual) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                }
+            }
+        }
+
+        function alterarZonaMunicipio(cdMun) {
+            const select = document.getElementById(`select-zona-${cdMun}`);
+            const novaZona = select.value;
+
+            if (!novaZona) {
+                mostrarAlerta('warning', 'Selecione uma zona primeiro');
+                return;
+            }
+
+            socket.emit('alterar_zona', {
+                cd_mun: cdMun,
+                nova_zona: novaZona
+            });
+
+            // Fechar popup
+            map.closePopup();
+        }
+
+        function carregarEstatisticas() {
+            fetch('/api/estatisticas')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        atualizarEstatisticas(data.estatisticas);
+                    }
+                })
+                .catch(error => console.error('Erro ao carregar estatísticas:', error));
+        }
+
+        function atualizarEstatisticas(stats) {
+            const container = document.getElementById('estatisticas-zonas');
+            container.innerHTML = '';
+
+            for (const [zona, dados] of Object.entries(stats)) {
+                const zonaDiv = document.createElement('div');
+                zonaDiv.className = 'zona-item';
+                
+                zonaDiv.innerHTML = `
+                    <div class="zona-cor" style="background-color: ${dados.cor}"></div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">${zona}</div>
+                        <small class="text-muted">
+                            ${dados.total_municipios} municípios (${dados.percentual}%)
+                            ${dados.share_medio !== undefined ? `<br>Share: ${dados.share_medio}%` : ''}
+                            ${dados.total_pdv !== undefined ? `<br>PDV: ${dados.total_pdv}` : ''}
+                        </small>
+                    </div>
+                `;
+                
+                container.appendChild(zonaDiv);
+            }
+        }
+
+        function mostrarAlerta(tipo, mensagem) {
+            const container = document.getElementById('alertas-container');
+            
+            const alerta = document.createElement('div');
+            alerta.className = `alert alert-${tipo} alert-dismissible fade show`;
+            alerta.innerHTML = `
+                ${mensagem}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            container.appendChild(alerta);
+            
+            // Remover alerta automaticamente após 5 segundos
+            setTimeout(() => {
+                if (alerta.parentNode) {
+                    alerta.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

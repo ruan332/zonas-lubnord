@@ -1,7 +1,7 @@
 {
   "versao": "1.0",
   "criado_em": "2025-09-25T16:05:55.278151",
-  "ultima_atualizacao": "2025-09-27T02:18:32.576999",
+  "ultima_atualizacao": "2025-09-26T18:03:20.498416",
   "alteracoes": [
     {
       "id": 1,
@@ -542,150 +542,10 @@
       "zona_nova": "Região Metroplitana Litoral",
       "usuario": "MapaInterativo",
       "tipo": "alteracao_zona"
-    },
-    {
-      "id": 55,
-      "timestamp": "2025-09-27T00:04:23.643847",
-      "cd_mun": "2604106",
-      "cidade": "Caruaru",
-      "zona_anterior": "Zona Caruaru",
-      "zona_nova": "Sem Zona",
-      "usuario": "MapaInterativo",
-      "tipo": "alteracao_zona"
-    },
-    {
-      "id": 56,
-      "timestamp": "2025-09-27T00:04:39.319056",
-      "cd_mun": "2604106",
-      "cidade": "Caruaru",
-      "zona_anterior": "Sem Zona",
-      "zona_nova": "Zona Caruaru",
-      "usuario": "MapaInterativo",
-      "tipo": "alteracao_zona"
-    },
-    {
-      "id": 57,
-      "timestamp": "2025-09-27T01:35:50.150922",
-      "cd_mun": "2800605",
-      "cidade": "Barra dos Coqueiros",
-      "zona_anterior": "Zona Aracaju Metropolitano",
-      "zona_nova": "Zona Aracaju",
-      "usuario": "MapaInterativo",
-      "tipo": "alteracao_zona"
-    },
-    {
-      "id": 58,
-      "timestamp": "2025-09-27T01:36:13.824732",
-      "cd_mun": "2800605",
-      "cidade": "Barra dos Coqueiros",
-      "zona_anterior": "Zona Aracaju",
-      "zona_nova": "Zona Aracaju",
-      "usuario": "MapaInterativo",
-      "tipo": "alteracao_zona"
-    },
-    {
-      "id": 59,
-      "timestamp": "2025-09-27T01:36:22.098505",
-      "cd_mun": "2800605",
-      "cidade": "Barra dos Coqueiros",
-      "zona_anterior": "Zona Aracaju",
-      "zona_nova": "Zona Aracaju Metropolitano",
-      "usuario": "MapaInterativo",
-      "tipo": "alteracao_zona"
-    },
-    {
-      "id": 60,
-      "timestamp": "2025-09-27T01:47:38.633011",
-      "cd_mun": "2800605",
-      "cidade": "Barra dos Coqueiros",
-      "zona_anterior": "Zona Aracaju Metropolitano",
-      "zona_nova": "Zona Aracaju",
-      "usuario": "MapaInterativo",
-      "tipo": "alteracao_zona"
-    },
-    {
-      "id": 61,
-      "timestamp": "2025-09-27T01:47:53.811019",
-      "cd_mun": "2800605",
-      "cidade": "Barra dos Coqueiros",
-      "zona_anterior": "Zona Aracaju",
-      "zona_nova": "Zona Aracaju Metropolitano",
-      "usuario": "MapaInterativo",
-      "tipo": "alteracao_zona"
-    },
-    {
-      "id": 62,
-      "timestamp": "2025-09-27T02:14:49.890762",
-      "cd_mun": "2803203",
-      "cidade": "Itaporanga d'Ajuda",
-      "zona_anterior": "Zona Sergipe Sul",
-      "zona_nova": "Zona Aracaju",
-      "usuario": "MapaInterativo",
-      "tipo": "alteracao_zona"
-    },
-    {
-      "id": 63,
-      "timestamp": "2025-09-27T02:15:35.399988",
-      "cd_mun": "2803203",
-      "cidade": "Itaporanga d'Ajuda",
-      "zona_anterior": "Zona Aracaju",
-      "zona_nova": "Zona Aracaju",
-      "usuario": "MapaInterativo",
-      "tipo": "alteracao_zona"
-    },
-    {
-      "id": 64,
-      "timestamp": "2025-09-27T02:16:01.635698",
-      "cd_mun": "2803203",
-      "cidade": "Itaporanga d'Ajuda",
-      "zona_anterior": "Zona Aracaju",
-      "zona_nova": "Zona Sergipe Sul",
-      "usuario": "MapaInterativo",
-      "tipo": "alteracao_zona"
-    },
-    {
-      "id": 65,
-      "timestamp": "2025-09-27T02:16:33.356559",
-      "cd_mun": "2800605",
-      "cidade": "Barra dos Coqueiros",
-      "zona_anterior": "Zona Aracaju Metropolitano",
-      "zona_nova": "Zona Aracaju",
-      "usuario": "MapaInterativo",
-      "tipo": "alteracao_zona"
-    },
-    {
-      "id": 66,
-      "timestamp": "2025-09-27T02:16:45.493072",
-      "cd_mun": "2800605",
-      "cidade": "Barra dos Coqueiros",
-      "zona_anterior": "Zona Aracaju",
-      "zona_nova": "Zona Aracaju Metropolitano",
-      "usuario": "MapaInterativo",
-      "tipo": "alteracao_zona"
-    },
-    {
-      "id": 67,
-      "timestamp": "2025-09-27T02:18:21.595761",
-      "cd_mun": "2700201",
-      "cidade": "Anadia",
-      "zona_anterior": "Zona Maceio Sul",
-      "zona_nova": "Zona Agreste",
-      "usuario": "MapaInterativo",
-      "tipo": "alteracao_zona"
-    },
-    {
-      "id": 68,
-      "timestamp": "2025-09-27T02:18:32.576999",
-      "cd_mun": "2700201",
-      "cidade": "Anadia",
-      "zona_anterior": "Zona Agreste",
-      "zona_nova": "Zona Maceio Sul",
-      "usuario": "MapaInterativo",
-      "tipo": "alteracao_zona"
     }
   ],
   "estatisticas": {
-    "total_alteracoes": 68,
+    "total_alteracoes": 54,
     "municipios_alterados": 0,
     "zonas_modificadas": [
       "Caruaru Sul",
@@ -698,12 +558,7 @@
       "Zona Caruaru",
       "Sem Zona",
       "Zona Serra Talhada",
-      "Região Metroplitana Litoral",
-      "Zona Aracaju",
-      "Zona Aracaju Metropolitano",
-      "Zona Sergipe Sul",
-      "Zona Agreste",
-      "Zona Maceio Sul"
+      "Região Metroplitana Litoral"
     ]
   }
 }
