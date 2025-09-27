@@ -24,21 +24,35 @@
         }
         
         .main-container {
-            height: calc(100vh - 56px);
+            height: 100vh;
             display: flex;
+            gap: 0;
         }
         
-        .sidebar {
-            width: 350px;
+        .sidebar-left {
+            width: 300px;
             background: #f8f9fa;
             border-right: 1px solid #dee2e6;
             overflow-y: auto;
-            padding: 20px;
+            padding: 15px;
+            flex-shrink: 0;
+            height: 100vh;
+        }
+        
+        .sidebar-right {
+            width: 280px;
+            background: #f8f9fa;
+            border-left: 1px solid #dee2e6;
+            overflow-y: auto;
+            padding: 15px;
+            flex-shrink: 0;
+            height: 100vh;
         }
         
         .map-container {
             flex: 1;
             position: relative;
+            min-width: 0;
         }
         
         #mapa {
@@ -58,34 +72,153 @@
         .stats-card {
             background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
             color: white;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
-            max-width: 280px;
+            border-radius: 12px;
+            margin: 0;
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+            max-width: 320px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         
         .stats-card .card-body {
-            padding: 10px;
-            font-size: 12px;
+            padding: 12px;
+            font-size: 13px;
+            line-height: 1.3;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        #estatisticas-gerais-direita {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        
+        /* Scrollbar personalizada para o container de estatísticas */
+        #estatisticas-gerais-direita::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #estatisticas-gerais-direita::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        #estatisticas-gerais-direita::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        #estatisticas-gerais-direita::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Container das zonas com flex para ocupar espaço restante */
+        .zones-container {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        
+        /* Melhorias nos cards das zonas */
+        .zona-item {
+            border-radius: 8px !important;
+            margin-bottom: 12px !important;
+            transition: all 0.2s ease;
+        }
+        
+        .zona-item:hover {
+            background: rgba(255,255,255,0.15) !important;
+            transform: translateY(-1px);
+        }
+        
+        .zona-badge {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        /* Aumentar fonte dos números nos cards das zonas */
+        .zona-item .fw-bold.text-white {
+            font-size: 14px !important;
+            font-weight: 700 !important;
+        }
+        
+        /* Fonte maior para números do maior potencial da zona */
+        .zona-item .text-end .fw-bold.text-white {
+            font-size: 13px !important;
+        }
+        
+        /* Fonte para valores do maior potencial */
+        .zona-item .text-end .text-white-50 {
+            font-size: 11px !important;
         }
         
         .stats-card .card-header {
-            padding: 8px 10px;
-            font-size: 13px;
+            padding: 10px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .stats-card h5 {
             font-size: 16px;
-            margin-bottom: 2px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            line-height: 1.2;
         }
         
         .stats-card small {
             font-size: 10px;
-            color: white !important;
+            color: rgba(255, 255, 255, 0.85) !important;
+            font-weight: 500;
+            line-height: 1.2;
         }
         
         .stats-card .text-muted {
-            color: white !important;
+            color: rgba(255, 255, 255, 0.75) !important;
+        }
+        
+        /* Melhorias para números das estatísticas */
+        .stats-card h4 {
+            font-size: 24px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 3px;
+            line-height: 1.1;
+        }
+        
+        .stats-card h6 {
+            font-size: 20px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2px;
+            line-height: 1.1;
+        }
+        
+        /* Melhor contraste para os cards de estatísticas gerais */
+        .stats-summary-card {
+            background: rgba(255, 255, 255, 0.15) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            backdrop-filter: blur(10px);
+            margin-bottom: 8px;
+            padding: 8px !important;
+        }
+        
+        .stats-detail-card {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            margin-bottom: 6px;
+            padding: 8px !important;
         }
         
         .zona-item {
@@ -193,13 +326,74 @@
             background: #0056b3;
         }
         
-        /* Slider de Transparência */
+        /* Tooltip personalizado */
+        .help-tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+        
+        .help-tooltip .tooltip-content {
+            visibility: hidden;
+            width: 280px;
+            background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+            color: white;
+            text-align: left;
+            border-radius: 8px;
+            padding: 12px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -140px;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .help-tooltip .tooltip-content::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #495057 transparent transparent transparent;
+        }
+        
+        .help-tooltip:hover .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .help-icon {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .help-icon:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: scale(1.1);
+        }
+            /* Slider de Transparência */
         #transparencia-slider {
             height: 6px;
             background: linear-gradient(to right, rgba(33, 150, 243, 0.2), #2196F3);
             border-radius: 3px;
-            outline: none;
-            transition: all 0.3s ease;
         }
         
         #transparencia-slider::-webkit-slider-thumb {
@@ -292,9 +486,11 @@
         }
         
         @media (max-width: 768px) {
-            .sidebar {
+            .sidebar-left, .sidebar-right {
                 width: 100%;
-                height: 40vh;
+                height: 30vh;
+                border: none;
+                border-bottom: 1px solid #dee2e6;
             }
             
             .main-container {
@@ -302,7 +498,7 @@
             }
             
             .map-container {
-                height: 60vh;
+                height: 40vh;
             }
             
             .share-legend {
@@ -339,23 +535,8 @@
     
     <!-- Container Principal -->
     <div class="main-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <!-- Estatísticas -->
-            <div class="stats-card">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-chart-pie"></i> Estatísticas Gerais
-                    </h5>
-                    <div id="estatisticas-gerais">
-                        <div class="text-center">
-                            <div class="spinner-border spinner-border-sm" role="status"></div>
-                            <small class="d-block mt-2">Carregando...</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
+        <!-- Sidebar Esquerda - Configurações -->
+        <div class="sidebar-left">
             <!-- Controles de Visualização -->
             <div class="card mb-3">
                 <div class="card-header">
@@ -442,22 +623,35 @@
                 </div>
             </div>
             
-            <!-- Instruções -->
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="fas fa-info-circle"></i> Como Usar
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <small>
-                        <ul class="mb-0 ps-3">
-                            <li>Clique em qualquer município no mapa</li>
-                            <li>Selecione a nova zona no modal</li>
-                            <li>As cores são atualizadas automaticamente</li>
-                            <li>Alterações são salvas em tempo real</li>
+            <!-- Instruções com Tooltip -->
+            <div class="d-flex justify-content-center mt-3">
+                <div class="help-tooltip">
+                    <div class="help-icon">
+                        <i class="fas fa-question"></i>
+                    </div>
+                    <div class="tooltip-content">
+                        <div class="fw-bold mb-2">
+                            <i class="fas fa-info-circle"></i> Como Usar o Sistema
+                        </div>
+                        <ul class="mb-0 ps-3" style="font-size: 11px;">
+                            <li class="mb-1">
+                                <i class="fas fa-mouse-pointer text-primary me-1"></i>
+                                Clique em qualquer município no mapa
+                            </li>
+                            <li class="mb-1">
+                                <i class="fas fa-edit text-success me-1"></i>
+                                Selecione a nova zona no modal
+                            </li>
+                            <li class="mb-1">
+                                <i class="fas fa-palette text-warning me-1"></i>
+                                As cores são atualizadas automaticamente
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-save text-info me-1"></i>
+                                Alterações são salvas em tempo real
+                            </li>
                         </ul>
-                    </small>
+                    </div>
                 </div>
             </div>
         </div>
@@ -471,6 +665,24 @@
                 </div>
             </div>
             <div id="mapa"></div>
+        </div>
+        
+        <!-- Sidebar Direita - Estatísticas -->
+        <div class="sidebar-right">
+            <!-- Estatísticas Gerais -->
+            <div class="stats-card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-chart-pie"></i> Estatísticas Gerais
+                    </h5>
+                    <div id="estatisticas-gerais-direita">
+                        <div class="text-center">
+                            <div class="spinner-border spinner-border-sm" role="status"></div>
+                            <small class="d-block mt-2">Carregando...</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -1411,7 +1623,7 @@
         
         // Atualizar estatísticas
         function atualizarEstatisticas(stats) {
-            const container = document.getElementById('estatisticas-gerais');
+            const container = document.getElementById('estatisticas-gerais-direita');
             
             let totalMunicipios = 0;
             let totalSellOutMes = 0;
@@ -1529,38 +1741,38 @@
             
             container.innerHTML = `
                 <div class="mb-4">
-                    <div class="row g-2">
+                    <div class="row g-3">
                         <div class="col-6">
-                            <div class="text-center p-3" style="background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div class="text-center p-3 stats-summary-card" style="border-radius: 10px;">
                                 <h4 class="mb-1 text-white">${totalMunicipios}</h4>
-                                <small class="text-white-50">Municípios</small>
+                                <small class="text-white-50 fw-semibold">Municípios</small>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="text-center p-3" style="background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div class="text-center p-3 stats-summary-card" style="border-radius: 10px;">
                                 <h4 class="mb-1 text-white">${shareGeralMedio}%</h4>
-                                <small class="text-white-50">Share Médio</small>
+                                <small class="text-white-50 fw-semibold">Share Médio</small>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="text-center p-2" style="background: rgba(0,123,255,0.2); border-radius: 6px; border: 1px solid rgba(0,123,255,0.3);">
+                            <div class="text-center p-3 stats-detail-card" style="border-radius: 8px;">
                                 <h6 class="mb-1 text-white">${Math.round(totalSellOutMes).toLocaleString()}</h6>
-                                <small class="text-white-50" style="font-size: 11px;">Sell Out Mês</small>
+                                <small class="text-white-50 fw-medium" style="font-size: 10px;">Sell Out Mês</small>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="text-center p-2" style="background: rgba(40,167,69,0.2); border-radius: 6px; border: 1px solid rgba(40,167,69,0.3);">
+                            <div class="text-center p-3 stats-detail-card" style="border-radius: 8px;">
                                 <h6 class="mb-1 text-white">${Math.round(totalPotencialMes).toLocaleString()}</h6>
-                                <small class="text-white-50" style="font-size: 11px;">Potencial Mês</small>
+                                <small class="text-white-50 fw-medium" style="font-size: 10px;">Potencial Mês</small>
                             </div>
                         </div>
                         <div class="col-12 mt-2">
-                            <div class="text-center p-2" style="background: rgba(255,193,7,0.2); border-radius: 6px; border: 1px solid rgba(255,193,7,0.3);">
+                            <div class="text-center p-3" style="background: rgba(255,193,7,0.25); border-radius: 8px; border: 1px solid rgba(255,193,7,0.4);">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-white-50" style="font-size: 11px;">Maior Potencial:</small>
+                                    <small class="text-white-50 fw-medium" style="font-size: 11px;">🏆 Maior Potencial:</small>
                                     <div class="text-end">
-                                        <small class="fw-bold text-white" style="font-size: 12px;">${cidadeMaiorPotencial.nome || 'N/A'}</small>
-                                        ${cidadeMaiorPotencial.valor > 0 ? `<br><small class="text-white-50" style="font-size: 10px;">${Math.round(cidadeMaiorPotencial.valor).toLocaleString()}</small>` : ''}
+                                        <small class="fw-bold text-white" style="font-size: 13px;">${cidadeMaiorPotencial.nome || 'N/A'}</small>
+                                        ${cidadeMaiorPotencial.valor > 0 ? `<br><small class="text-white-50 fw-medium" style="font-size: 11px;">${Math.round(cidadeMaiorPotencial.valor).toLocaleString()}</small>` : ''}
                                     </div>
                                 </div>
                             </div>
@@ -1568,7 +1780,7 @@
                     </div>
                 </div>
                 <hr class="text-white" style="opacity: 0.3;">
-                <div style="max-height: 300px; overflow-y: auto;">
+                <div class="zones-container">
                     ${html}
                 </div>
             `;

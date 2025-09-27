@@ -160,6 +160,56 @@
       "zona_nova": "Zona Maceio Norte",
       "usuario": "MapaInterativo",
       "tipo": "alteracao_zona"
+    },
+    {
+      "id": 71,
+      "timestamp": "2025-09-27T09:04:16.684593",
+      "cd_mun": "2800100",
+      "cidade": "Amparo do São Francisco",
+      "zona_anterior": "Zona Sertão",
+      "zona_nova": "Sem Zona",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 72,
+      "timestamp": "2025-09-27T09:05:22.128041",
+      "cd_mun": "2800100",
+      "cidade": "Amparo do São Francisco",
+      "zona_anterior": "Sem Zona",
+      "zona_nova": "Zona Sertão",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 73,
+      "timestamp": "2025-09-27T09:06:45.359378",
+      "cd_mun": "2800605",
+      "cidade": "Barra dos Coqueiros",
+      "zona_anterior": "Zona Aracaju Metropolitano",
+      "zona_nova": "Zona Aracaju",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 74,
+      "timestamp": "2025-09-27T09:06:57.124060",
+      "cd_mun": "2800605",
+      "cidade": "Barra dos Coqueiros",
+      "zona_anterior": "Zona Aracaju",
+      "zona_nova": "Sem Zona",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 75,
+      "timestamp": "2025-09-27T09:07:12.982666",
+      "cd_mun": "2800605",
+      "cidade": "Barra dos Coqueiros",
+      "zona_anterior": "Sem Zona",
+      "zona_nova": "Zona Aracaju Metropolitano",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "versao": "1.0",
   "criado_em": "2025-09-25T16:05:55.278151",
-  "ultima_atualizacao": "2025-09-27T08:29:01.646137",
+  "ultima_atualizacao": "2025-09-27T09:07:12.982666",
   "alteracoes": [
     {
       "id": 1,
@@ -702,10 +702,60 @@
       "zona_nova": "Zona Maceio Norte",
       "usuario": "MapaInterativo",
       "tipo": "alteracao_zona"
+    },
+    {
+      "id": 71,
+      "timestamp": "2025-09-27T09:04:16.684593",
+      "cd_mun": "2800100",
+      "cidade": "Amparo do São Francisco",
+      "zona_anterior": "Zona Sertão",
+      "zona_nova": "Sem Zona",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 72,
+      "timestamp": "2025-09-27T09:05:22.128041",
+      "cd_mun": "2800100",
+      "cidade": "Amparo do São Francisco",
+      "zona_anterior": "Sem Zona",
+      "zona_nova": "Zona Sertão",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 73,
+      "timestamp": "2025-09-27T09:06:45.359378",
+      "cd_mun": "2800605",
+      "cidade": "Barra dos Coqueiros",
+      "zona_anterior": "Zona Aracaju Metropolitano",
+      "zona_nova": "Zona Aracaju",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 74,
+      "timestamp": "2025-09-27T09:06:57.124060",
+      "cd_mun": "2800605",
+      "cidade": "Barra dos Coqueiros",
+      "zona_anterior": "Zona Aracaju",
+      "zona_nova": "Sem Zona",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 75,
+      "timestamp": "2025-09-27T09:07:12.982666",
+      "cd_mun": "2800605",
+      "cidade": "Barra dos Coqueiros",
+      "zona_anterior": "Sem Zona",
+      "zona_nova": "Zona Aracaju Metropolitano",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
     }
   ],
   "estatisticas": {
-    "total_alteracoes": 70,
+    "total_alteracoes": 75,
     "municipios_alterados": 0,
     "zonas_modificadas": [
       "Caruaru Sul",
@@ -724,7 +774,8 @@
       "Zona Sergipe Sul",
       "Zona Agreste",
       "Zona Maceio Sul",
-      "Zona Maceio Norte"
+      "Zona Maceio Norte",
+      "Zona Sertão"
     ]
   }
 }

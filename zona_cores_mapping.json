@@ -1,18 +1,7 @@
 {
-  "Sem Zona": "#ffffff",
-  "Caruaru Norte": "#8B0000",
-  "Caruaru Sul": "#4B0082",
-  "Região Metroplitana Litoral": "#000080",
-  "Região Metroplitana Norte": "#006400",
-  "Região Metroplitana Oeste": "#B8860B",
-  "Região Metroplitana Sul": "#8B008B",
-  "Zona Araripina": "#DC143C",
-  "Zona Arco Verde": "#0005a3",
-  "Zona Arcoverde": "#4b0082",
-  "Zona Caruaru": "#ffd700",
-  "Zona Caruaru Sul": "#2F4F4F",
-  "Zona Garanhus": "#4682B4",
-  "Zona Petrolina": "#8B4513",
-  "Zona Recife": "#228B22",
-  "Zona Serra Talhada": "#44ff00"
+  "Zona Aracaju": "#228b22",
+  "Zona Aracaju Metropolitano": "#4169E1",
+  "Zona Sergipe Sul": "#DC143C",
+  "Zona Sertão": "#8B4513",
+  "Sem Zona": "#CCCCCC"
 }
