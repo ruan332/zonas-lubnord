@@ -140,6 +140,26 @@
       "zona_nova": "Zona Maceio Sul",
       "usuario": "MapaInterativo",
       "tipo": "alteracao_zona"
+    },
+    {
+      "id": 69,
+      "timestamp": "2025-09-27T08:28:56.750912",
+      "cd_mun": "2701704",
+      "cidade": "Capela",
+      "zona_anterior": "Zona Maceio Norte",
+      "zona_nova": "Zona Agreste",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
+    },
+    {
+      "id": 70,
+      "timestamp": "2025-09-27T08:29:01.646137",
+      "cd_mun": "2701704",
+      "cidade": "Capela",
+      "zona_anterior": "Zona Agreste",
+      "zona_nova": "Zona Maceio Norte",
+      "usuario": "MapaInterativo",
+      "tipo": "alteracao_zona"
     }
   ]
 }
