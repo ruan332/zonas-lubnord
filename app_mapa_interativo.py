@@ -1242,6 +1242,37 @@ def api_download_base_atualizada():
             'erro': f'Erro ao gerar download: {str(e)}'
         }), 500
 
+# Integração automática da extensão Multi-UF
+def inicializar_extensao_automatica():
+    """Inicializa a extensão Multi-UF automaticamente"""
+    try:
+        from extensao_multi_uf import inicializar_extensao_multi_uf
+        extensao = inicializar_extensao_multi_uf(app, socketio, gerenciador)
+        
+        if extensao:
+            print("✅ Extensão Multi-UF carregada automaticamente!")
+            
+            # Listar UFs disponíveis
+            try:
+                ufs_disponiveis = gerenciador_ufs.listar_ufs_ativas()
+                print(f"🗺️ UFs disponíveis: {[uf['codigo'] for uf in ufs_disponiveis]}")
+            except Exception as e:
+                print(f"⚠️ Erro ao verificar UFs: {e}")
+                
+            return extensao
+        else:
+            print("⚠️ Falha ao carregar extensão Multi-UF")
+            return None
+    except ImportError as e:
+        print(f"⚠️ Extensão Multi-UF não encontrada: {e}")
+        return None
+    except Exception as e:
+        print(f"❌ Erro ao carregar extensão Multi-UF: {e}")
+        return None
+
+# Carregar extensão Multi-UF automaticamente
+extensao_multi_uf = inicializar_extensao_automatica()
+
 if __name__ == '__main__':
     import os
     from dotenv import load_dotenv
@@ -1257,6 +1288,10 @@ if __name__ == '__main__':
     print("🚀 Iniciando aplicação de mapa interativo...")
     print(f"📍 Servidor: {host}:{port}")
     print(f"🌍 Ambiente: {os.getenv('FLASK_ENV', 'production')}")
-    print("🗺️ Mapa interativo com edição em tempo real")
+    
+    if extensao_multi_uf:
+        print("🗺️ Mapa interativo com sistema Multi-UF integrado")
+    else:
+        print("🗺️ Mapa interativo (modo single-UF)")
     
     socketio.run(app, host=host, port=port, debug=debug)
